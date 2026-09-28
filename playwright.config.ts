@@ -23,7 +23,6 @@ export default defineConfig({
       name: 'desktop-1440',
       use: {
         ...devices['Desktop Chrome'],
-        // Use the installed Google Chrome: Playwright's bundled Chromium has no WebGPU on macOS.
         channel: 'chrome',
         viewport: { width: 1440, height: 900 },
       },

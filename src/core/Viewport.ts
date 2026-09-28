@@ -1,10 +1,6 @@
 import type { PerspectiveCamera } from 'three';
 import type { WebGPURenderer } from 'three/webgpu';
 
-/**
- * Keeps the renderer and camera in sync with the window size.
- * Call `dispose()` to stop listening.
- */
 export class Viewport {
   constructor(
     private readonly renderer: WebGPURenderer,

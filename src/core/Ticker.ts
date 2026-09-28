@@ -2,11 +2,6 @@ import { MAX_FRAME_DELTA } from './config';
 
 export type TickCallback = (dt: number, elapsed: number) => void;
 
-/**
- * requestAnimationFrame loop that reports time in seconds.
- * `dt` is the clamped delta since the previous frame; `elapsed` is the total run time.
- * All motion in the app is driven from these values, never from frame counts.
- */
 export class Ticker {
   private requestId: number | null = null;
   private previousTime = 0;
