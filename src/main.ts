@@ -5,6 +5,8 @@ import { createRenderer } from './core/renderer';
 import { Ticker } from './core/Ticker';
 import { Viewport } from './core/Viewport';
 import { loadGraphs } from './geometry/loadGraphs';
+import { PolytopeMesh } from './geometry/PolytopeMesh';
+import { subdivisionLevelFor } from './geometry/subdivisionLevels';
 
 async function bootstrap(): Promise<void> {
   const canvas = document.querySelector<HTMLCanvasElement>('#stage');
@@ -23,6 +25,15 @@ async function bootstrap(): Promise<void> {
   console.info(`[nth] loaded ${String(graphs.size)} polytopes`);
 
   const scene = new Scene();
+  const hypercube = graphs.get('hypercube');
+  if (hypercube) {
+    scene.add(
+      new PolytopeMesh(hypercube, {
+        subdivision: subdivisionLevelFor('hypercube'),
+        colorSeed: 1,
+      }),
+    );
+  }
   const camera = new PerspectiveCamera(CAMERA_FOV, 1, CAMERA_NEAR, CAMERA_FAR);
   camera.position.z = CAMERA_DISTANCE;
 
