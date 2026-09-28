@@ -4,6 +4,7 @@ import { CAMERA_DISTANCE, CAMERA_FAR, CAMERA_FOV, CAMERA_NEAR } from './core/con
 import { createRenderer } from './core/renderer';
 import { Ticker } from './core/Ticker';
 import { Viewport } from './core/Viewport';
+import { loadGraphs } from './geometry/loadGraphs';
 
 async function bootstrap(): Promise<void> {
   const canvas = document.querySelector<HTMLCanvasElement>('#stage');
@@ -17,6 +18,9 @@ async function bootstrap(): Promise<void> {
   });
   console.info(`[nth] renderer backend: ${backend}`);
   document.documentElement.dataset.backend = backend;
+
+  const graphs = await loadGraphs();
+  console.info(`[nth] loaded ${String(graphs.size)} polytopes`);
 
   const scene = new Scene();
   const camera = new PerspectiveCamera(CAMERA_FOV, 1, CAMERA_NEAR, CAMERA_FAR);
