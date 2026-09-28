@@ -1,6 +1,7 @@
 import { PerspectiveCamera, Scene } from 'three';
 
 import { CAMERA_DISTANCE, CAMERA_FAR, CAMERA_FOV, CAMERA_NEAR } from './core/config';
+import { Projector4D } from './core/Projector4D';
 import { createRenderer } from './core/renderer';
 import { Rotor4D } from './core/Rotor4D';
 import { Ticker } from './core/Ticker';
@@ -25,11 +26,15 @@ async function bootstrap(): Promise<void> {
   const graphs = await loadGraphs();
   console.info(`[nth] loaded ${String(graphs.size)} polytopes`);
 
+  const rotor = new Rotor4D({ seed: readNumber(params, 'seed') ?? Date.now() });
+  const projector = new Projector4D(rotor.matrix, readNumber(params, 'd'));
+
   const scene = new Scene();
   const hypercube = graphs.get('hypercube');
   if (hypercube) {
     scene.add(
       new PolytopeMesh(hypercube, {
+        projector,
         subdivision: subdivisionLevelFor('hypercube'),
         colorSeed: 1,
       }),
@@ -39,7 +44,6 @@ async function bootstrap(): Promise<void> {
   camera.position.z = CAMERA_DISTANCE;
 
   const viewport = new Viewport(renderer, camera);
-  const rotor = new Rotor4D({ seed: Date.now() });
 
   const ticker = new Ticker((dt) => {
     rotor.update(dt);
@@ -52,6 +56,13 @@ async function bootstrap(): Promise<void> {
     viewport.dispose();
     void renderer.dispose();
   });
+}
+
+function readNumber(params: URLSearchParams, key: string): number | undefined {
+  const raw = params.get(key);
+  if (raw === null) return undefined;
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : undefined;
 }
 
 void bootstrap();
