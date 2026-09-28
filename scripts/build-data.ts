@@ -2,24 +2,21 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import * as z from 'zod/mini';
+
+import { polytopeSourceSchema, type GraphsFile } from '../src/geometry/schema.ts';
+
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE_DIR = join(ROOT, 'data', 'polytopes');
 const OUTPUT_FILE = join(ROOT, 'public', 'data', 'graphs.json');
 const DECIMALS = 6;
 
-interface ManifestEntry {
-  slug: string;
-  name: string;
-}
-
-interface PolytopeSource {
-  vertices: number[][];
-  faces: number[][];
-}
-
-interface PolytopeGraph extends PolytopeSource {
-  name: string;
-}
+const manifestSchema = z.array(
+  z.object({
+    slug: z.string().check(z.regex(/^[a-z0-9-]+$/)),
+    name: z.string().check(z.minLength(1)),
+  }),
+);
 
 function round(value: number): number {
   return Number(value.toFixed(DECIMALS));
@@ -29,39 +26,15 @@ function readJson(path: string): unknown {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
 
-function validate(slug: string, source: PolytopeSource): void {
-  const vertexCount = source.vertices.length;
-  for (const [i, vertex] of source.vertices.entries()) {
-    if (vertex.length !== 4) {
-      throw new Error(
-        `${slug}: vertex ${String(i)} has ${String(vertex.length)} components, expected 4`,
-      );
-    }
-  }
-  for (const [i, face] of source.faces.entries()) {
-    if (face.length < 3) {
-      throw new Error(`${slug}: face ${String(i)} has fewer than 3 vertices`);
-    }
-    for (const index of face) {
-      if (!Number.isInteger(index) || index < 0 || index >= vertexCount) {
-        throw new Error(
-          `${slug}: face ${String(i)} references vertex ${String(index)} out of range`,
-        );
-      }
-    }
-  }
-}
-
 function build(): void {
-  const manifest = readJson(join(SOURCE_DIR, 'manifest.json')) as ManifestEntry[];
-  const graphs: Record<string, PolytopeGraph> = {};
+  const manifest = manifestSchema.parse(readJson(join(SOURCE_DIR, 'manifest.json')));
+  const graphs: GraphsFile = {};
 
   for (const { slug, name } of manifest) {
-    const source = readJson(join(SOURCE_DIR, `${slug}.json`)) as PolytopeSource;
-    validate(slug, source);
+    const source = polytopeSourceSchema.parse(readJson(join(SOURCE_DIR, `${slug}.json`)));
     graphs[slug] = {
       name,
-      vertices: source.vertices.map((v) => v.map(round)),
+      vertices: source.vertices.map(([x, y, z, w]) => [round(x), round(y), round(z), round(w)]),
       faces: source.faces,
     };
   }

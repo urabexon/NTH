@@ -1,4 +1,8 @@
-import type { Edge, PolytopeGraphData, Triangle, Vec4 } from './types';
+import type { PolytopeGraphData, Vec4 } from './schema';
+
+export type Triangle = readonly [a: number, b: number, c: number];
+
+export type Edge = readonly [a: number, b: number];
 
 export class Graph {
   readonly name: string;

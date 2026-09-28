@@ -95,7 +95,7 @@ describe('Graph from data', () => {
 describe('parseGraphs validation', () => {
   test('rejects a vertex that is not a 4-vector', () => {
     expect(() => parseGraphs({ bad: { name: 'Bad', vertices: [[0, 0, 1]], faces: [] } })).toThrow(
-      /vertices/,
+      /"vertices"/,
     );
   });
 
@@ -106,7 +106,7 @@ describe('parseGraphs validation', () => {
       [0, 0, 1, 0],
     ];
     expect(() => parseGraphs({ bad: { name: 'Bad', vertices, faces: [[0, 1, 3]] } })).toThrow(
-      /faces/,
+      /outside 0\.\.2/,
     );
   });
 
