@@ -3,3 +3,5 @@ node_modules
 pnpm-lock.yaml
 public/data
 .local
+data/polytopes/*.json
+!data/polytopes/manifest.json
