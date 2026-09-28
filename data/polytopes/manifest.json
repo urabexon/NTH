@@ -1,0 +1,98 @@
+[
+  {
+    "slug": "hypercube",
+    "name": "Hypercube"
+  },
+  {
+    "slug": "pentatope",
+    "name": "Pentatope"
+  },
+  {
+    "slug": "3x3-duoprism",
+    "name": "3x3-Duoprism"
+  },
+  {
+    "slug": "16-cell",
+    "name": "16-cell"
+  },
+  {
+    "slug": "flat-torus",
+    "name": "Flat Torus"
+  },
+  {
+    "slug": "8-hedra-solid",
+    "name": "8-Hedra Solid"
+  },
+  {
+    "slug": "2-2-7",
+    "name": "{2,2,7}"
+  },
+  {
+    "slug": "2-2-9",
+    "name": "{2,2,9}"
+  },
+  {
+    "slug": "3-3-3-3-4",
+    "name": "{3,3,3,3,4}"
+  },
+  {
+    "slug": "3-5-maze",
+    "name": "{3,5} Maze"
+  },
+  {
+    "slug": "24-cell",
+    "name": "24-cell"
+  },
+  {
+    "slug": "truncated-hypercube",
+    "name": "Truncated Hypercube"
+  },
+  {
+    "slug": "2-3-4",
+    "name": "{2,3,4}"
+  },
+  {
+    "slug": "edge-truncated-hypercube",
+    "name": "Edge-Truncated Hypercube"
+  },
+  {
+    "slug": "12x12-duoprism",
+    "name": "12x12-Duoprism"
+  },
+  {
+    "slug": "y",
+    "name": "Y"
+  },
+  {
+    "slug": "8-prisms-solid",
+    "name": "8-Prisms Solid"
+  },
+  {
+    "slug": "3-3-4-maze",
+    "name": "{3,3,4} Maze"
+  },
+  {
+    "slug": "120-cell",
+    "name": "120-cell"
+  },
+  {
+    "slug": "20-hedra-solid",
+    "name": "20-Hedra Solid"
+  },
+  {
+    "slug": "6-prisms-solid",
+    "name": "6-Prisms Solid"
+  },
+  {
+    "slug": "4-hedra-solid",
+    "name": "4-Hedra Solid"
+  },
+  {
+    "slug": "600-cell",
+    "name": "600-cell"
+  },
+  {
+    "slug": "12-hedra-solid",
+    "name": "12-Hedra Solid"
+  }
+]
