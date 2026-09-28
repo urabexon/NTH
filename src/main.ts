@@ -2,6 +2,7 @@ import { PerspectiveCamera, Scene } from 'three';
 
 import { CAMERA_DISTANCE, CAMERA_FAR, CAMERA_FOV, CAMERA_NEAR } from './core/config';
 import { createRenderer } from './core/renderer';
+import { Rotor4D } from './core/Rotor4D';
 import { Ticker } from './core/Ticker';
 import { Viewport } from './core/Viewport';
 import { loadGraphs } from './geometry/loadGraphs';
@@ -38,8 +39,10 @@ async function bootstrap(): Promise<void> {
   camera.position.z = CAMERA_DISTANCE;
 
   const viewport = new Viewport(renderer, camera);
+  const rotor = new Rotor4D({ seed: Date.now() });
 
-  const ticker = new Ticker(() => {
+  const ticker = new Ticker((dt) => {
+    rotor.update(dt);
     renderer.render(scene, camera);
   });
   ticker.start();
