@@ -1,11 +1,15 @@
 import { BufferAttribute, BufferGeometry, DoubleSide, Mesh } from 'three';
 import { MeshBasicNodeMaterial } from 'three/webgpu';
 
+import type { Projector4D } from '@/core/Projector4D';
+import { stereographicProjection } from '@/shaders/stereographicProjection';
+
 import type { Graph } from './Graph';
 import { subdivide } from './subdivide';
 import { generateVertexColors } from './vertexColors';
 
 export interface PolytopeMeshOptions {
+  readonly projector: Projector4D;
   readonly subdivision: number;
   readonly colorSeed: number;
 }
@@ -30,6 +34,10 @@ export class PolytopeMesh extends Mesh<BufferGeometry, MeshBasicNodeMaterial> {
       transparent: true,
       opacity: 0.8,
     });
+    material.positionNode = stereographicProjection(
+      options.projector.matrixNode,
+      options.projector.distanceNode,
+    );
 
     super(geometry, material);
     this.graph = graph;
