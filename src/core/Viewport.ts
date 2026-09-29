@@ -1,10 +1,12 @@
-import type { PerspectiveCamera } from 'three';
 import type { WebGPURenderer } from 'three/webgpu';
+
+import { FRAME_ASPECT } from './config';
+import { fitAspect } from './letterbox';
 
 export class Viewport {
   constructor(
     private readonly renderer: WebGPURenderer,
-    private readonly camera: PerspectiveCamera,
+    private readonly aspect: number = FRAME_ASPECT,
   ) {
     window.addEventListener('resize', this.apply);
     this.apply();
@@ -15,10 +17,10 @@ export class Viewport {
   }
 
   private readonly apply = (): void => {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    this.renderer.setSize(width, height, false);
-    this.camera.aspect = width / height;
-    this.camera.updateProjectionMatrix();
+    const { width, height } = fitAspect(
+      { width: window.innerWidth, height: window.innerHeight },
+      this.aspect,
+    );
+    this.renderer.setSize(width, height, true);
   };
 }

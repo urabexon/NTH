@@ -4,10 +4,24 @@ export const MAX_PIXEL_RATIO = 2;
 
 export const MAX_FRAME_DELTA = 0.1;
 
+export const FRAME_ASPECT = 1920 / 816;
+
 export const CAMERA_FOV = 40;
 export const CAMERA_NEAR = 0.1;
 export const CAMERA_FAR = 100;
 export const CAMERA_DISTANCE = 3;
+
+export const MAGNIFY_FOV = 90;
+export const MAGNIFY_DISTANCE = 0.5;
+export const MAGNIFY_IN_TIME = 0.08;
+export const MAGNIFY_OUT_TIME = 0.6;
+
+export const DOLLY_MAX = 5;
+export const DOLLY_EASING_TIME = 0.4;
+
+export const ORBIT_MIN_SPEED = 0.05;
+export const ORBIT_MAX_SPEED = 0.2;
+export const ORBIT_EASING_TIME = 2;
 
 export const PROJECTION_DISTANCE_DEFAULT = 1.5;
 export const PROJECTION_DISTANCE_MIN = 1.001;

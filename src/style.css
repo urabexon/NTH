@@ -1,5 +1,6 @@
 :root {
   --color-background: #112130;
+  --color-letterbox: #000;
   color-scheme: dark;
 }
 
@@ -8,11 +9,16 @@ body {
   margin: 0;
   height: 100%;
   overflow: hidden;
-  background: var(--color-background);
+  background: var(--color-letterbox);
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #stage {
   display: block;
-  width: 100vw;
-  height: 100vh;
+  background: var(--color-background);
 }
