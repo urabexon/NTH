@@ -10,6 +10,7 @@ import { Ticker } from './core/Ticker';
 import { Viewport } from './core/Viewport';
 import { loadGraphs } from './geometry/loadGraphs';
 import { PolytopeManager } from './geometry/PolytopeManager';
+import { EFFECT_KINDS, type EffectKind } from './post/DeformEffect';
 import { Pipeline } from './post/Pipeline';
 
 async function bootstrap(): Promise<void> {
@@ -52,6 +53,12 @@ async function bootstrap(): Promise<void> {
   pipeline.bloomStrength = readNumber(params, 'bloom') ?? pipeline.bloomStrength;
   pipeline.bloomRadius = readNumber(params, 'bloomRadius') ?? pipeline.bloomRadius;
   pipeline.bloomThreshold = readNumber(params, 'bloomThreshold') ?? pipeline.bloomThreshold;
+  const effect = params.get('effect');
+  if (effect !== null && isEffectKind(effect)) pipeline.deform.effect = effect;
+  pipeline.deform.slitScanEnabled = params.has('slitscan');
+  pipeline.deform.lensEnabled = params.has('lens');
+  if (params.has('turbulence'))
+    pipeline.deform.triggerTurbulence(readNumber(params, 'turbulence') ?? 1);
 
   await polytopes.build((built, total) => {
     document.documentElement.dataset.progress = String(built / total);
@@ -81,6 +88,7 @@ async function bootstrap(): Promise<void> {
   const ticker = new Ticker((dt) => {
     rotor.update(dt);
     orbit.update(dt);
+    pipeline.update(dt);
     pipeline.render();
     fpsMeter.tick(dt);
   });
@@ -91,6 +99,10 @@ async function bootstrap(): Promise<void> {
     viewport.dispose();
     void renderer.dispose();
   });
+}
+
+function isEffectKind(value: string): value is EffectKind {
+  return (EFFECT_KINDS as readonly string[]).includes(value);
 }
 
 function nextFrame(): Promise<void> {
