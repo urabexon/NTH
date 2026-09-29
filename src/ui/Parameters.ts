@@ -2,6 +2,9 @@ import type { OrbitalCamera } from '@/camera/OrbitalCamera';
 import {
   BLOOM_STRENGTH_DEFAULT,
   BLOOM_STRENGTH_MAX,
+  EDGE_WIDTH_DEFAULT_PX,
+  EDGE_WIDTH_MAX_PX,
+  EDGE_WIDTH_MIN_PX,
   LENS_RADIUS_DEFAULT_PX,
   LENS_RADIUS_MAX_PX,
   LENS_RADIUS_MIN_PX,
@@ -33,6 +36,7 @@ export const PARAMETER_KEYS = [
   'scale',
   'lensRadius',
   'bloomStrength',
+  'edgeWidth',
 ] as const;
 export type ParameterKey = (typeof PARAMETER_KEYS)[number];
 
@@ -57,6 +61,7 @@ export class Parameters {
       scale: new EasedValue(1, POLYTOPE_SCALE_MIN, POLYTOPE_SCALE_MAX),
       lensRadius: new EasedValue(LENS_RADIUS_DEFAULT_PX, LENS_RADIUS_MIN_PX, LENS_RADIUS_MAX_PX),
       bloomStrength: new EasedValue(BLOOM_STRENGTH_DEFAULT, 0, BLOOM_STRENGTH_MAX),
+      edgeWidth: new EasedValue(EDGE_WIDTH_DEFAULT_PX, EDGE_WIDTH_MIN_PX, EDGE_WIDTH_MAX_PX),
     };
     this.applyAll();
   }
@@ -98,6 +103,9 @@ export class Parameters {
         break;
       case 'bloomStrength':
         pipeline.bloomStrength = value;
+        break;
+      case 'edgeWidth':
+        polytopes.edgeStyle.widthPx = value;
         break;
     }
   }

@@ -20,6 +20,7 @@ function stubTargets() {
           this.x = v;
         },
       },
+      edgeStyle: { widthPx: 0 },
     },
     pipeline: { bloomStrength: 0, deform: { lensRadiusPx: 0 } },
     orbit: {},
@@ -67,6 +68,7 @@ describe('Parameters', () => {
     expect(targets.polytopes.scale.x).toBe(1);
     expect(targets.pipeline.deform.lensRadiusPx).toBe(400);
     expect(targets.pipeline.bloomStrength).toBeCloseTo(0.3, 6);
+    expect(targets.polytopes.edgeStyle.widthPx).toBe(2);
   });
 
   test('set() eases the target value over time', () => {

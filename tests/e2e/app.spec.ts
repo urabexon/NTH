@@ -85,7 +85,7 @@ test.describe('app boot', () => {
       await expect(panel).toHaveCount(0);
       await page.keyboard.press('KeyH');
       await expect(panel).toHaveAttribute('data-visible', 'true');
-      await expect(panel.locator('.tp-lblv')).toHaveCount(5);
+      await expect(panel.locator('.tp-lblv')).toHaveCount(7);
       await page.waitForTimeout(300);
       await page.screenshot({ path: testInfo.outputPath('panel.png') });
       await page.keyboard.press('KeyH');
@@ -111,6 +111,24 @@ test.describe('app boot', () => {
       await page.keyboard.press('Space');
       await expect(html).not.toHaveAttribute('data-polytope', before ?? '');
     });
+  });
+
+  test.describe('edges', () => {
+    for (const [name, query] of Object.entries({
+      thin: 'edge=0.5',
+      thick: 'edge=6',
+      faces: 'faces',
+    })) {
+      test(`${name} renders without errors`, async ({ page }, testInfo) => {
+        const errors: string[] = [];
+        page.on('pageerror', (error) => errors.push(error.message));
+        await page.goto(`/?seed=1&polytope=hypercube&${query}`);
+        await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+        await page.waitForTimeout(400);
+        await page.screenshot({ path: testInfo.outputPath(`edges-${name}.png`) });
+        expect(errors).toEqual([]);
+      });
+    }
   });
 
   test.describe('post-processing', () => {

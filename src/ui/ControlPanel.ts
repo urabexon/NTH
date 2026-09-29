@@ -1,6 +1,8 @@
 import { Pane } from 'tweakpane';
 
 import {
+  EDGE_WIDTH_MAX_PX,
+  EDGE_WIDTH_MIN_PX,
   LENS_RADIUS_MAX_PX,
   LENS_RADIUS_MIN_PX,
   POLYTOPE_SCALE_MAX,
@@ -22,7 +24,12 @@ const SLIDERS: Readonly<Record<ParameterKey, SliderSpec>> = {
   scale: { label: 'scale', min: POLYTOPE_SCALE_MIN, max: POLYTOPE_SCALE_MAX, step: 0.01 },
   lensRadius: { label: 'lens radius', min: LENS_RADIUS_MIN_PX, max: LENS_RADIUS_MAX_PX, step: 1 },
   bloomStrength: { label: 'bloom', min: 0, max: 1, step: 0.001 },
+  edgeWidth: { label: 'edge width', min: EDGE_WIDTH_MIN_PX, max: EDGE_WIDTH_MAX_PX, step: 0.1 },
 };
+
+export interface PanelToggles {
+  faces: boolean;
+}
 
 export class ControlPanel {
   readonly element: HTMLElement;
@@ -33,6 +40,8 @@ export class ControlPanel {
   constructor(
     private readonly parameters: Parameters,
     container: HTMLElement,
+    toggles: PanelToggles,
+    onToggle: (key: keyof PanelToggles, value: boolean) => void,
   ) {
     this.pane = new Pane({ container, title: 'NTH' });
     this.element = this.pane.element;
@@ -55,6 +64,9 @@ export class ControlPanel {
           parameters.set(key, event.value);
         });
     }
+    this.pane.addBinding(toggles, 'faces', { label: 'faces' }).on('change', (event) => {
+      onToggle('faces', event.value);
+    });
     this.visible = false;
   }
 

@@ -4,7 +4,8 @@ import type { Projector4D } from '@/core/Projector4D';
 import { createRandom, type Random } from '@/core/random';
 
 import type { GraphSet } from './loadGraphs';
-import { PolytopeMesh } from './PolytopeMesh';
+import { EdgeStyle } from './EdgeStyle';
+import { Polytope } from './Polytope';
 import { subdivisionLevelFor } from './subdivisionLevels';
 
 export interface PolytopeManagerOptions {
@@ -24,7 +25,10 @@ export class PolytopeManager extends Group {
   private readonly random: Random;
   private readonly colorSeed: number;
   private readonly subdivisionFor: (slug: string) => number;
-  private readonly meshes = new Map<string, PolytopeMesh>();
+  readonly edgeStyle = new EdgeStyle();
+
+  private readonly meshes = new Map<string, Polytope>();
+  private facesShown = false;
   private currentSlug: string | null = null;
 
   constructor(graphs: GraphSet, options: PolytopeManagerOptions) {
@@ -41,18 +45,29 @@ export class PolytopeManager extends Group {
     return this.currentSlug;
   }
 
-  get currentMesh(): PolytopeMesh | null {
+  get facesVisible(): boolean {
+    return this.facesShown;
+  }
+
+  set facesVisible(value: boolean) {
+    this.facesShown = value;
+    for (const polytope of this.meshes.values()) polytope.faces.visible = value;
+  }
+
+  get currentMesh(): Polytope | null {
     return this.currentSlug === null ? null : (this.meshes.get(this.currentSlug) ?? null);
   }
 
   async build(onProgress?: ProgressCallback, yieldBetween?: () => Promise<void>): Promise<void> {
     let built = 0;
     for (const [slug, graph] of this.graphs) {
-      const mesh = new PolytopeMesh(graph, {
+      const mesh = new Polytope(graph, {
         projector: this.projector,
+        style: this.edgeStyle,
         subdivision: this.subdivisionFor(slug),
         colorSeed: this.colorSeed + built,
       });
+      mesh.faces.visible = this.facesShown;
       mesh.visible = false;
       this.meshes.set(slug, mesh);
       this.add(mesh);

@@ -6,20 +6,19 @@ import { stereographicProjection } from '@/shaders/stereographicProjection';
 
 import type { Graph } from './Graph';
 import { subdivide } from './subdivide';
-import { generateVertexColors } from './vertexColors';
+import type { Rgb } from './vertexColors';
 
 export interface PolytopeMeshOptions {
   readonly projector: Projector4D;
   readonly subdivision: number;
-  readonly colorSeed: number;
+  readonly colors: readonly Rgb[];
 }
 
 export class PolytopeMesh extends Mesh<BufferGeometry, MeshBasicNodeMaterial> {
   readonly graph: Graph;
 
   constructor(graph: Graph, options: PolytopeMeshOptions) {
-    const colors = generateVertexColors(graph.vertices.length, options.colorSeed);
-    const mesh = subdivide(graph.vertices, colors, graph.triangles, options.subdivision);
+    const mesh = subdivide(graph.vertices, options.colors, graph.triangles, options.subdivision);
 
     const geometry = new BufferGeometry();
     geometry.setAttribute('position', new BufferAttribute(mesh.position, 3));
