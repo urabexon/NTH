@@ -57,6 +57,31 @@ test.describe('app boot', () => {
     });
   });
 
+  test.describe('post-processing', () => {
+    test('bloom on and off both render without errors', async ({ page }, testInfo) => {
+      const errors: string[] = [];
+      page.on('pageerror', (error) => errors.push(error.message));
+      for (const variant of ['default', 'off']) {
+        const query = variant === 'off' ? '&bloom=0' : '';
+        await page.goto(`/?seed=1&polytope=24-cell${query}`);
+        await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+        await page.waitForTimeout(300);
+        await page.screenshot({ path: testInfo.outputPath(`bloom-${variant}.png`) });
+      }
+      expect(errors).toEqual([]);
+    });
+
+    test('120-cell keeps a high frame rate with bloom', async ({ page }) => {
+      await page.goto('/?seed=1&polytope=120-cell');
+      const html = page.locator('html');
+      await expect(html).toHaveAttribute('data-ready', 'true');
+      await page.waitForTimeout(2500);
+      const fps = Number(await html.getAttribute('data-fps'));
+      console.info(`[e2e] 120-cell fps: ${String(fps)}`);
+      expect(fps).toBeGreaterThanOrEqual(50);
+    });
+  });
+
   test('falls back to WebGL2 when forced', async ({ page }) => {
     await page.goto('/?webgl');
     await expect(page.locator('html')).toHaveAttribute('data-backend', 'webgl2');

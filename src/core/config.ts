@@ -25,3 +25,7 @@ export const ORBIT_EASING_TIME = 2;
 
 export const PROJECTION_DISTANCE_DEFAULT = 1.5;
 export const PROJECTION_DISTANCE_MIN = 1.001;
+
+export const BLOOM_STRENGTH_DEFAULT = 0.3;
+export const BLOOM_RADIUS_DEFAULT = 0.25;
+export const BLOOM_THRESHOLD_DEFAULT = 0.5;
