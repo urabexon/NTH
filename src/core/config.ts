@@ -41,3 +41,9 @@ export const LENS_RADIUS_MIN_PX = 200;
 export const LENS_RADIUS_MAX_PX = 800;
 export const LENS_IN_TIME = 0.08;
 export const LENS_OUT_TIME = 0.6;
+
+export const ABERRATION_DEFAULT = 0.16;
+export const ABERRATION_MAX = 1;
+export const ABERRATION_SAMPLES = 9;
+export const INVERT_COLOR = 0xd8ede4;
+export const INVERT_TRANSITION_TIME = 1.5;
