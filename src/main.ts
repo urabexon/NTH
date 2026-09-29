@@ -1,6 +1,6 @@
-import { PerspectiveCamera, Scene } from 'three';
+import { Scene } from 'three';
 
-import { CAMERA_DISTANCE, CAMERA_FAR, CAMERA_FOV, CAMERA_NEAR } from './core/config';
+import { OrbitalCamera } from './camera/OrbitalCamera';
 import { Projector4D } from './core/Projector4D';
 import { createRenderer } from './core/renderer';
 import { Rotor4D } from './core/Rotor4D';
@@ -40,14 +40,17 @@ async function bootstrap(): Promise<void> {
       }),
     );
   }
-  const camera = new PerspectiveCamera(CAMERA_FOV, 1, CAMERA_NEAR, CAMERA_FAR);
-  camera.position.z = CAMERA_DISTANCE;
+  const orbit = new OrbitalCamera({ seed: readNumber(params, 'seed') ?? Date.now() });
+  orbit.dollyDistance = readNumber(params, 'dolly') ?? 0;
+  orbit.isMagnified = params.has('magnify');
+  scene.add(orbit);
 
-  const viewport = new Viewport(renderer, camera);
+  const viewport = new Viewport(renderer);
 
   const ticker = new Ticker((dt) => {
     rotor.update(dt);
-    renderer.render(scene, camera);
+    orbit.update(dt);
+    renderer.render(scene, orbit.camera);
   });
   ticker.start();
 
