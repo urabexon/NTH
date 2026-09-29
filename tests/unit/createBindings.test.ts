@@ -17,6 +17,7 @@ function stubTargets(random = () => 0.1) {
     rotor: { reseed: vi.fn() },
     orbit: { reseed: vi.fn(), isMagnified: false, dollyDistance: 0 },
     pipeline: { deform, composite },
+    panel: { visible: false },
     random,
   };
   return { targets, deform, composite };
@@ -46,6 +47,7 @@ describe('createBindings', () => {
       'W',
       'E',
       'Z',
+      'H',
       'Shift',
     ]);
   });
@@ -98,6 +100,14 @@ describe('createBindings', () => {
     const { deform, press } = attach(() => 0.9);
     press('KeyE');
     expect(deform.effect).toBe('mirror-right');
+  });
+
+  test('H toggles the panel', () => {
+    const { targets, press } = attach();
+    press('KeyH');
+    expect(targets.panel.visible).toBe(true);
+    press('KeyH');
+    expect(targets.panel.visible).toBe(false);
   });
 
   test('Shift dollies out while held and back on release', () => {

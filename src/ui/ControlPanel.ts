@@ -1,0 +1,82 @@
+import { Pane } from 'tweakpane';
+
+import {
+  LENS_RADIUS_MAX_PX,
+  LENS_RADIUS_MIN_PX,
+  POLYTOPE_SCALE_MAX,
+  POLYTOPE_SCALE_MIN,
+} from '@/core/config';
+
+import { PARAMETER_KEYS, type ParameterKey, type Parameters } from './Parameters';
+
+interface SliderSpec {
+  readonly label: string;
+  readonly min: number;
+  readonly max: number;
+  readonly step: number;
+}
+
+const SLIDERS: Readonly<Record<ParameterKey, SliderSpec>> = {
+  distance: { label: 'distance', min: 0, max: 1, step: 0.001 },
+  rotationSpeed: { label: 'rotation', min: 0, max: 1, step: 0.001 },
+  scale: { label: 'scale', min: POLYTOPE_SCALE_MIN, max: POLYTOPE_SCALE_MAX, step: 0.01 },
+  lensRadius: { label: 'lens radius', min: LENS_RADIUS_MIN_PX, max: LENS_RADIUS_MAX_PX, step: 1 },
+  bloomStrength: { label: 'bloom', min: 0, max: 1, step: 0.001 },
+};
+
+export class ControlPanel {
+  readonly element: HTMLElement;
+
+  private readonly pane: Pane;
+  private readonly model: Record<ParameterKey, number>;
+
+  constructor(
+    private readonly parameters: Parameters,
+    container: HTMLElement,
+  ) {
+    this.pane = new Pane({ container, title: 'NTH' });
+    this.element = this.pane.element;
+    this.element.classList.add('control-panel');
+
+    this.model = Object.fromEntries(
+      PARAMETER_KEYS.map((key) => [key, parameters.values[key].target]),
+    ) as Record<ParameterKey, number>;
+
+    for (const key of PARAMETER_KEYS) {
+      const spec = SLIDERS[key];
+      this.pane
+        .addBinding(this.model, key, {
+          label: spec.label,
+          min: spec.min,
+          max: spec.max,
+          step: spec.step,
+        })
+        .on('change', (event) => {
+          parameters.set(key, event.value);
+        });
+    }
+    this.visible = false;
+  }
+
+  get visible(): boolean {
+    return !this.pane.hidden;
+  }
+
+  set visible(value: boolean) {
+    this.pane.hidden = !value;
+    this.element.dataset.visible = String(value);
+  }
+
+  toggle(): void {
+    this.visible = !this.visible;
+  }
+
+  sync(): void {
+    for (const key of PARAMETER_KEYS) this.model[key] = this.parameters.values[key].target;
+    this.pane.refresh();
+  }
+
+  dispose(): void {
+    this.pane.dispose();
+  }
+}

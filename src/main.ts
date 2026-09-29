@@ -15,6 +15,8 @@ import { Pipeline } from './post/Pipeline';
 import { createBindings } from './ui/createBindings';
 import { Keybinds } from './ui/Keybinds';
 import { KeyLegend } from './ui/KeyLegend';
+import { LazyControlPanel } from './ui/LazyControlPanel';
+import { Parameters, sliderFromDistance } from './ui/Parameters';
 
 async function bootstrap(): Promise<void> {
   const canvas = document.querySelector<HTMLCanvasElement>('#stage');
@@ -81,8 +83,15 @@ async function bootstrap(): Promise<void> {
   document.documentElement.dataset.polytope = polytopes.current ?? '';
   document.documentElement.dataset.ready = 'true';
 
+  const parameters = new Parameters({ projector, rotor, polytopes, pipeline, orbit });
+  if (params.has('d')) parameters.jumpTo('distance', sliderFromDistance(projector.distance));
+  if (params.has('scale')) parameters.jumpTo('scale', polytopes.scale.x);
+  if (params.has('bloom')) parameters.jumpTo('bloomStrength', pipeline.bloomStrength);
+  const panel = new LazyControlPanel(parameters, document.body);
+  if (params.has('panel')) panel.visible = true;
+
   const keybinds = new Keybinds(
-    createBindings({ polytopes, rotor, orbit, pipeline, random: Math.random }),
+    createBindings({ polytopes, rotor, orbit, pipeline, panel, random: Math.random }),
     window,
   );
   const legend = new KeyLegend(keybinds, document.body);
@@ -96,6 +105,7 @@ async function bootstrap(): Promise<void> {
   });
 
   const ticker = new Ticker((dt) => {
+    parameters.update(dt);
     rotor.update(dt);
     orbit.update(dt);
     pipeline.update(dt);
@@ -108,6 +118,7 @@ async function bootstrap(): Promise<void> {
     ticker.stop();
     keybinds.dispose();
     legend.dispose();
+    panel.dispose();
     viewport.dispose();
     void renderer.dispose();
   });
