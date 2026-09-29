@@ -6,16 +6,21 @@ import type { Pipeline } from '@/post/Pipeline';
 
 import type { Binding } from './Keybinds';
 
+export interface PanelLike {
+  visible: boolean;
+}
+
 export interface BindingTargets {
   readonly polytopes: PolytopeManager;
   readonly rotor: Rotor4D;
   readonly orbit: OrbitalCamera;
   readonly pipeline: Pipeline;
+  readonly panel: PanelLike;
   readonly random: () => number;
 }
 
 export function createBindings(targets: BindingTargets): Binding[] {
-  const { polytopes, rotor, orbit, pipeline, random } = targets;
+  const { polytopes, rotor, orbit, pipeline, panel, random } = targets;
   const { deform, composite } = pipeline;
   let mirrorSide: 'mirror-left' | 'mirror-right' = random() < 0.5 ? 'mirror-left' : 'mirror-right';
 
@@ -104,6 +109,15 @@ export function createBindings(targets: BindingTargets): Binding[] {
       mode: 'toggle',
       onPress: (active) => {
         composite.isInverted = active;
+      },
+    },
+    {
+      code: 'KeyH',
+      key: 'H',
+      label: 'Panel',
+      mode: 'toggle',
+      onPress: (active) => {
+        panel.visible = active;
       },
     },
     {

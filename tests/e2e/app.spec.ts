@@ -77,6 +77,21 @@ test.describe('app boot', () => {
       await expect(legend.locator('.legend-item.is-active')).toHaveCount(0);
     });
 
+    test('H shows the control panel and its sliders', async ({ page }, testInfo) => {
+      await page.goto('/?seed=1&polytope=hypercube');
+      const html = page.locator('html');
+      await expect(html).toHaveAttribute('data-ready', 'true');
+      const panel = page.locator('.control-panel');
+      await expect(panel).toHaveCount(0);
+      await page.keyboard.press('KeyH');
+      await expect(panel).toHaveAttribute('data-visible', 'true');
+      await expect(panel.locator('.tp-lblv')).toHaveCount(5);
+      await page.waitForTimeout(300);
+      await page.screenshot({ path: testInfo.outputPath('panel.png') });
+      await page.keyboard.press('KeyH');
+      await expect(panel).toHaveAttribute('data-visible', 'false');
+    });
+
     test('legend hides after a delay and returns on pointer move', async ({ page }) => {
       await page.goto('/?seed=1&polytope=hypercube');
       const legend = page.locator('nav.legend');

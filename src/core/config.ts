@@ -50,3 +50,10 @@ export const INVERT_TRANSITION_TIME = 1.5;
 
 export const WIDE_DOLLY_DISTANCE = 2.5;
 export const LEGEND_HIDE_DELAY = 3;
+
+export const SLIDER_EASING_TIME = 0.25;
+export const PROJECTION_DISTANCE_MAX = 5;
+export const ROTATION_SPEED_MAX = 2;
+export const POLYTOPE_SCALE_MIN = 0.25;
+export const POLYTOPE_SCALE_MAX = 2;
+export const BLOOM_STRENGTH_MAX = 1;
