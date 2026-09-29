@@ -1,13 +1,16 @@
-import { Scene } from 'three';
+import { Color, Scene } from 'three';
 
 import { OrbitalCamera } from './camera/OrbitalCamera';
 import { Projector4D } from './core/Projector4D';
+import { CLEAR_COLOR } from './core/config';
+import { FpsMeter } from './core/FpsMeter';
 import { createRenderer } from './core/renderer';
 import { Rotor4D } from './core/Rotor4D';
 import { Ticker } from './core/Ticker';
 import { Viewport } from './core/Viewport';
 import { loadGraphs } from './geometry/loadGraphs';
 import { PolytopeManager } from './geometry/PolytopeManager';
+import { Pipeline } from './post/Pipeline';
 
 async function bootstrap(): Promise<void> {
   const canvas = document.querySelector<HTMLCanvasElement>('#stage');
@@ -29,6 +32,7 @@ async function bootstrap(): Promise<void> {
   const projector = new Projector4D(rotor.matrix, readNumber(params, 'd'));
 
   const scene = new Scene();
+  scene.background = new Color(CLEAR_COLOR);
   const polytopes = new PolytopeManager(graphs, {
     projector,
     seed: readNumber(params, 'seed') ?? Date.now(),
@@ -42,6 +46,12 @@ async function bootstrap(): Promise<void> {
   scene.add(orbit);
 
   const viewport = new Viewport(renderer);
+  const pipeline = new Pipeline(renderer, scene, orbit.camera, {
+    bloomEnabled: params.get('bloom') !== '0',
+  });
+  pipeline.bloomStrength = readNumber(params, 'bloom') ?? pipeline.bloomStrength;
+  pipeline.bloomRadius = readNumber(params, 'bloomRadius') ?? pipeline.bloomRadius;
+  pipeline.bloomThreshold = readNumber(params, 'bloomThreshold') ?? pipeline.bloomThreshold;
 
   await polytopes.build((built, total) => {
     document.documentElement.dataset.progress = String(built / total);
@@ -53,7 +63,7 @@ async function bootstrap(): Promise<void> {
     polytopes.show('hypercube');
   }
   polytopes.setAllVisible(true);
-  renderer.render(scene, orbit.camera);
+  pipeline.render();
   polytopes.setAllVisible(false);
   document.documentElement.dataset.polytope = polytopes.current ?? '';
   document.documentElement.dataset.ready = 'true';
@@ -64,10 +74,15 @@ async function bootstrap(): Promise<void> {
     document.documentElement.dataset.polytope = polytopes.showRandom();
   });
 
+  const fpsMeter = new FpsMeter((fps) => {
+    document.documentElement.dataset.fps = fps.toFixed(0);
+  });
+
   const ticker = new Ticker((dt) => {
     rotor.update(dt);
     orbit.update(dt);
-    renderer.render(scene, orbit.camera);
+    pipeline.render();
+    fpsMeter.tick(dt);
   });
   ticker.start();
 
