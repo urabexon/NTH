@@ -57,3 +57,10 @@ export const ROTATION_SPEED_MAX = 2;
 export const POLYTOPE_SCALE_MIN = 0.25;
 export const POLYTOPE_SCALE_MAX = 2;
 export const BLOOM_STRENGTH_MAX = 1;
+
+export const EDGE_WIDTH_DEFAULT_PX = 2;
+export const EDGE_WIDTH_MIN_PX = 0.5;
+export const EDGE_WIDTH_MAX_PX = 8;
+export const EDGE_DEPTH_REFERENCE = 3;
+export const EDGE_DEPTH_SCALE_MIN = 0.35;
+export const EDGE_DEPTH_SCALE_MAX = 3;

@@ -2,7 +2,7 @@ import { Color, Scene } from 'three';
 
 import { OrbitalCamera } from './camera/OrbitalCamera';
 import { Projector4D } from './core/Projector4D';
-import { CLEAR_COLOR } from './core/config';
+import { CLEAR_COLOR, EDGE_WIDTH_DEFAULT_PX } from './core/config';
 import { FpsMeter } from './core/FpsMeter';
 import { createRenderer } from './core/renderer';
 import { Rotor4D } from './core/Rotor4D';
@@ -87,7 +87,17 @@ async function bootstrap(): Promise<void> {
   if (params.has('d')) parameters.jumpTo('distance', sliderFromDistance(projector.distance));
   if (params.has('scale')) parameters.jumpTo('scale', polytopes.scale.x);
   if (params.has('bloom')) parameters.jumpTo('bloomStrength', pipeline.bloomStrength);
-  const panel = new LazyControlPanel(parameters, document.body);
+  if (params.has('edge'))
+    parameters.jumpTo('edgeWidth', readNumber(params, 'edge') ?? EDGE_WIDTH_DEFAULT_PX);
+  polytopes.facesVisible = params.has('faces');
+  const panel = new LazyControlPanel(
+    parameters,
+    document.body,
+    { faces: polytopes.facesVisible },
+    (_key, value) => {
+      polytopes.facesVisible = value;
+    },
+  );
   if (params.has('panel')) panel.visible = true;
 
   const keybinds = new Keybinds(
