@@ -36,6 +36,27 @@ test.describe('app boot', () => {
     }
   });
 
+  test.describe('polytopes', () => {
+    for (const slug of ['24-cell', '120-cell', '600-cell']) {
+      test(`shows ${slug} and saves a screenshot`, async ({ page }, testInfo) => {
+        await page.goto(`/?seed=1&polytope=${slug}`);
+        await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+        await expect(page.locator('html')).toHaveAttribute('data-polytope', slug);
+        await page.waitForTimeout(300);
+        await page.screenshot({ path: testInfo.outputPath(`polytope-${slug}.png`) });
+      });
+    }
+
+    test('Space switches to a different polytope', async ({ page }) => {
+      await page.goto('/?seed=1');
+      const html = page.locator('html');
+      await expect(html).toHaveAttribute('data-ready', 'true');
+      const before = await html.getAttribute('data-polytope');
+      await page.keyboard.press('Space');
+      await expect(html).not.toHaveAttribute('data-polytope', before ?? '');
+    });
+  });
+
   test('falls back to WebGL2 when forced', async ({ page }) => {
     await page.goto('/?webgl');
     await expect(page.locator('html')).toHaveAttribute('data-backend', 'webgl2');

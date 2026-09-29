@@ -7,8 +7,7 @@ import { Rotor4D } from './core/Rotor4D';
 import { Ticker } from './core/Ticker';
 import { Viewport } from './core/Viewport';
 import { loadGraphs } from './geometry/loadGraphs';
-import { PolytopeMesh } from './geometry/PolytopeMesh';
-import { subdivisionLevelFor } from './geometry/subdivisionLevels';
+import { PolytopeManager } from './geometry/PolytopeManager';
 
 async function bootstrap(): Promise<void> {
   const canvas = document.querySelector<HTMLCanvasElement>('#stage');
@@ -30,22 +29,40 @@ async function bootstrap(): Promise<void> {
   const projector = new Projector4D(rotor.matrix, readNumber(params, 'd'));
 
   const scene = new Scene();
-  const hypercube = graphs.get('hypercube');
-  if (hypercube) {
-    scene.add(
-      new PolytopeMesh(hypercube, {
-        projector,
-        subdivision: subdivisionLevelFor('hypercube'),
-        colorSeed: 1,
-      }),
-    );
-  }
+  const polytopes = new PolytopeManager(graphs, {
+    projector,
+    seed: readNumber(params, 'seed') ?? Date.now(),
+  });
+  polytopes.scale.setScalar(readNumber(params, 'scale') ?? 1);
+  scene.add(polytopes);
+
   const orbit = new OrbitalCamera({ seed: readNumber(params, 'seed') ?? Date.now() });
   orbit.dollyDistance = readNumber(params, 'dolly') ?? 0;
   orbit.isMagnified = params.has('magnify');
   scene.add(orbit);
 
   const viewport = new Viewport(renderer);
+
+  await polytopes.build((built, total) => {
+    document.documentElement.dataset.progress = String(built / total);
+  }, nextFrame);
+  const requested = params.get('polytope');
+  if (requested !== null && polytopes.slugs.includes(requested)) {
+    polytopes.show(requested);
+  } else {
+    polytopes.show('hypercube');
+  }
+  polytopes.setAllVisible(true);
+  renderer.render(scene, orbit.camera);
+  polytopes.setAllVisible(false);
+  document.documentElement.dataset.polytope = polytopes.current ?? '';
+  document.documentElement.dataset.ready = 'true';
+
+  window.addEventListener('keydown', (event) => {
+    if (event.code !== 'Space' || event.repeat) return;
+    event.preventDefault();
+    document.documentElement.dataset.polytope = polytopes.showRandom();
+  });
 
   const ticker = new Ticker((dt) => {
     rotor.update(dt);
@@ -58,6 +75,14 @@ async function bootstrap(): Promise<void> {
     ticker.stop();
     viewport.dispose();
     void renderer.dispose();
+  });
+}
+
+function nextFrame(): Promise<void> {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      resolve();
+    });
   });
 }
 
