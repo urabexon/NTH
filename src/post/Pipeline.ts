@@ -1,6 +1,6 @@
 import { bloom } from 'three/addons/tsl/display/BloomNode.js';
 import { fxaa } from 'three/addons/tsl/display/FXAANode.js';
-import { pass } from 'three/tsl';
+import { convertToTexture, pass } from 'three/tsl';
 import { RenderPipeline, type Camera, type Scene, type WebGPURenderer } from 'three/webgpu';
 
 import {
@@ -9,6 +9,7 @@ import {
   BLOOM_THRESHOLD_DEFAULT,
 } from '@/core/config';
 
+import { CompositeEffect } from './CompositeEffect';
 import { DeformEffect } from './DeformEffect';
 
 export interface PipelineOptions {
@@ -17,6 +18,7 @@ export interface PipelineOptions {
 
 export class Pipeline {
   readonly deform = new DeformEffect();
+  readonly composite = new CompositeEffect();
 
   private readonly post: RenderPipeline;
   private readonly bloomNode;
@@ -37,7 +39,8 @@ export class Pipeline {
       BLOOM_THRESHOLD_DEFAULT,
     );
 
-    const composed = options.bloomEnabled === false ? color : color.add(this.bloomNode);
+    const lit = options.bloomEnabled === false ? color : color.add(this.bloomNode);
+    const composed = this.composite.apply(convertToTexture(lit));
     this.post = new RenderPipeline(renderer, fxaa(composed));
   }
 
@@ -67,6 +70,7 @@ export class Pipeline {
 
   update(dt: number): void {
     this.deform.update(dt);
+    this.composite.update(dt);
   }
 
   render(): void {

@@ -59,6 +59,9 @@ async function bootstrap(): Promise<void> {
   pipeline.deform.lensEnabled = params.has('lens');
   if (params.has('turbulence'))
     pipeline.deform.triggerTurbulence(readNumber(params, 'turbulence') ?? 1);
+  pipeline.composite.aberrationAmount =
+    readNumber(params, 'aberration') ?? pipeline.composite.aberrationAmount;
+  pipeline.composite.isInverted = params.has('invert');
 
   await polytopes.build((built, total) => {
     document.documentElement.dataset.progress = String(built / total);

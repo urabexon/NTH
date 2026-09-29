@@ -104,6 +104,25 @@ test.describe('app boot', () => {
     }
   });
 
+  test.describe('composite effects', () => {
+    const variants: Record<string, { query: string; wait: number }> = {
+      aberration: { query: 'aberration=0.6', wait: 400 },
+      'aberration-off': { query: 'aberration=0', wait: 400 },
+      invert: { query: 'invert', wait: 1900 },
+    };
+    for (const [name, { query, wait }] of Object.entries(variants)) {
+      test(`${name} renders without errors`, async ({ page }, testInfo) => {
+        const errors: string[] = [];
+        page.on('pageerror', (error) => errors.push(error.message));
+        await page.goto(`/?seed=1&polytope=hypercube&${query}`);
+        await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+        await page.waitForTimeout(wait);
+        await page.screenshot({ path: testInfo.outputPath(`composite-${name}.png`) });
+        expect(errors).toEqual([]);
+      });
+    }
+  });
+
   test('falls back to WebGL2 when forced', async ({ page }) => {
     await page.goto('/?webgl');
     await expect(page.locator('html')).toHaveAttribute('data-backend', 'webgl2');
