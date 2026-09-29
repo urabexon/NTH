@@ -29,3 +29,15 @@ export const PROJECTION_DISTANCE_MIN = 1.001;
 export const BLOOM_STRENGTH_DEFAULT = 0.3;
 export const BLOOM_RADIUS_DEFAULT = 0.25;
 export const BLOOM_THRESHOLD_DEFAULT = 0.5;
+
+export const TURBULENCE_DECAY_TIME = 0.35;
+export const TURBULENCE_SCALE = 0.26;
+export const TURBULENCE_AMPLITUDE = 0.078;
+export const SLITSCAN_IN_TIME = 0.05;
+export const SLITSCAN_OUT_TIME = 0.15;
+export const SLITSCAN_HALF_WIDTH_PX = 3;
+export const LENS_RADIUS_DEFAULT_PX = 400;
+export const LENS_RADIUS_MIN_PX = 200;
+export const LENS_RADIUS_MAX_PX = 800;
+export const LENS_IN_TIME = 0.08;
+export const LENS_OUT_TIME = 0.6;

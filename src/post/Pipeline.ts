@@ -9,11 +9,15 @@ import {
   BLOOM_THRESHOLD_DEFAULT,
 } from '@/core/config';
 
+import { DeformEffect } from './DeformEffect';
+
 export interface PipelineOptions {
   readonly bloomEnabled?: boolean;
 }
 
 export class Pipeline {
+  readonly deform = new DeformEffect();
+
   private readonly post: RenderPipeline;
   private readonly bloomNode;
 
@@ -24,7 +28,7 @@ export class Pipeline {
     options: PipelineOptions = {},
   ) {
     const scenePass = pass(scene, camera);
-    const color = scenePass.getTextureNode('output');
+    const color = this.deform.apply(scenePass.getTextureNode('output'));
 
     this.bloomNode = bloom(
       color,
@@ -59,6 +63,10 @@ export class Pipeline {
 
   set bloomThreshold(value: number) {
     this.bloomNode.threshold.value = Math.max(0, value);
+  }
+
+  update(dt: number): void {
+    this.deform.update(dt);
   }
 
   render(): void {

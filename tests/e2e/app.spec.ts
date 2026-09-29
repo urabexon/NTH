@@ -82,6 +82,28 @@ test.describe('app boot', () => {
     });
   });
 
+  test.describe('deform effects', () => {
+    const variants: Record<string, string> = {
+      repeat: 'effect=repeat',
+      'mirror-left': 'effect=mirror-left',
+      'mirror-right': 'effect=mirror-right',
+      slitscan: 'slitscan',
+      lens: 'lens',
+      turbulence: 'turbulence=1',
+    };
+    for (const [name, query] of Object.entries(variants)) {
+      test(`${name} renders without errors`, async ({ page }, testInfo) => {
+        const errors: string[] = [];
+        page.on('pageerror', (error) => errors.push(error.message));
+        await page.goto(`/?seed=1&polytope=hypercube&${query}`);
+        await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+        await page.waitForTimeout(name === 'turbulence' ? 50 : 400);
+        await page.screenshot({ path: testInfo.outputPath(`deform-${name}.png`) });
+        expect(errors).toEqual([]);
+      });
+    }
+  });
+
   test('falls back to WebGL2 when forced', async ({ page }) => {
     await page.goto('/?webgl');
     await expect(page.locator('html')).toHaveAttribute('data-backend', 'webgl2');
