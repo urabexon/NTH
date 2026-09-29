@@ -12,6 +12,9 @@ import { loadGraphs } from './geometry/loadGraphs';
 import { PolytopeManager } from './geometry/PolytopeManager';
 import { EFFECT_KINDS, type EffectKind } from './post/DeformEffect';
 import { Pipeline } from './post/Pipeline';
+import { createBindings } from './ui/createBindings';
+import { Keybinds } from './ui/Keybinds';
+import { KeyLegend } from './ui/KeyLegend';
 
 async function bootstrap(): Promise<void> {
   const canvas = document.querySelector<HTMLCanvasElement>('#stage');
@@ -78,11 +81,15 @@ async function bootstrap(): Promise<void> {
   document.documentElement.dataset.polytope = polytopes.current ?? '';
   document.documentElement.dataset.ready = 'true';
 
-  window.addEventListener('keydown', (event) => {
-    if (event.code !== 'Space' || event.repeat) return;
-    event.preventDefault();
-    document.documentElement.dataset.polytope = polytopes.showRandom();
+  const keybinds = new Keybinds(
+    createBindings({ polytopes, rotor, orbit, pipeline, random: Math.random }),
+    window,
+  );
+  const legend = new KeyLegend(keybinds, document.body);
+  keybinds.onChange(() => {
+    mirrorState(polytopes, pipeline, orbit);
   });
+  mirrorState(polytopes, pipeline, orbit);
 
   const fpsMeter = new FpsMeter((fps) => {
     document.documentElement.dataset.fps = fps.toFixed(0);
@@ -99,9 +106,20 @@ async function bootstrap(): Promise<void> {
 
   window.addEventListener('beforeunload', () => {
     ticker.stop();
+    keybinds.dispose();
+    legend.dispose();
     viewport.dispose();
     void renderer.dispose();
   });
+}
+
+function mirrorState(polytopes: PolytopeManager, pipeline: Pipeline, orbit: OrbitalCamera): void {
+  const data = document.documentElement.dataset;
+  data.polytope = polytopes.current ?? '';
+  data.effect = pipeline.deform.effect;
+  data.slitscan = String(pipeline.deform.slitScanEnabled);
+  data.invert = String(pipeline.composite.isInverted);
+  data.magnify = String(orbit.isMagnified);
 }
 
 function isEffectKind(value: string): value is EffectKind {
