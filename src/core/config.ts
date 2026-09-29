@@ -47,3 +47,6 @@ export const ABERRATION_MAX = 1;
 export const ABERRATION_SAMPLES = 9;
 export const INVERT_COLOR = 0xd8ede4;
 export const INVERT_TRANSITION_TIME = 1.5;
+
+export const WIDE_DOLLY_DISTANCE = 2.5;
+export const LEGEND_HIDE_DELAY = 3;

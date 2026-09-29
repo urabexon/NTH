@@ -47,6 +47,47 @@ test.describe('app boot', () => {
       });
     }
 
+    test('keys toggle effects and the legend reflects them', async ({ page }, testInfo) => {
+      await page.goto('/?seed=1&polytope=hypercube');
+      const html = page.locator('html');
+      await expect(html).toHaveAttribute('data-ready', 'true');
+
+      await page.keyboard.press('KeyW');
+      await expect(html).toHaveAttribute('data-effect', 'repeat');
+      await page.keyboard.press('KeyE');
+      await expect(html).toHaveAttribute('data-effect', /mirror-(left|right)/);
+      await page.keyboard.press('KeyQ');
+      await expect(html).toHaveAttribute('data-effect', 'none');
+
+      await page.keyboard.press('KeyR');
+      await expect(html).toHaveAttribute('data-slitscan', 'true');
+      await page.keyboard.press('KeyT');
+      await expect(html).toHaveAttribute('data-magnify', 'true');
+      await page.keyboard.press('KeyZ');
+      await expect(html).toHaveAttribute('data-invert', 'true');
+
+      const legend = page.locator('nav.legend');
+      await expect(legend.locator('.legend-item.is-active')).toHaveCount(3);
+      await page.waitForTimeout(400);
+      await page.screenshot({ path: testInfo.outputPath('keys-active.png') });
+
+      await page.keyboard.press('KeyR');
+      await page.keyboard.press('KeyT');
+      await page.keyboard.press('KeyZ');
+      await expect(legend.locator('.legend-item.is-active')).toHaveCount(0);
+    });
+
+    test('legend hides after a delay and returns on pointer move', async ({ page }) => {
+      await page.goto('/?seed=1&polytope=hypercube');
+      const legend = page.locator('nav.legend');
+      await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+      await expect(legend).not.toHaveClass(/is-hidden/);
+      await expect(legend).toHaveClass(/is-hidden/, { timeout: 5000 });
+      await page.mouse.move(200, 200);
+      await page.mouse.move(240, 220);
+      await expect(legend).not.toHaveClass(/is-hidden/);
+    });
+
     test('Space switches to a different polytope', async ({ page }) => {
       await page.goto('/?seed=1');
       const html = page.locator('html');

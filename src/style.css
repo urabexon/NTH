@@ -22,3 +22,57 @@ body {
   display: block;
   background: var(--color-background);
 }
+
+.legend {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 55%);
+  backdrop-filter: blur(8px);
+  font:
+    11px/1 system-ui,
+    sans-serif;
+  color: rgb(255 255 255 / 80%);
+  letter-spacing: 0.02em;
+  transition: opacity 400ms ease;
+  pointer-events: none;
+  user-select: none;
+}
+
+.legend.is-hidden {
+  opacity: 0;
+}
+
+.legend-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 44px;
+  padding: 6px 4px;
+  border-radius: 6px;
+  transition: background-color 120ms ease;
+}
+
+.legend-item.is-active {
+  background: rgb(255 80 200 / 45%);
+  color: #fff;
+}
+
+.legend kbd {
+  padding: 3px 6px;
+  border: 1px solid rgb(255 255 255 / 35%);
+  border-radius: 4px;
+  font:
+    600 11px/1 system-ui,
+    sans-serif;
+}
+
+.legend span {
+  opacity: 0.75;
+}
