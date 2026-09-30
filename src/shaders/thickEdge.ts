@@ -13,8 +13,10 @@ import {
 import type { Node } from 'three/webgpu';
 
 import { EDGE_DEPTH_REFERENCE, EDGE_DEPTH_SCALE_MAX, EDGE_DEPTH_SCALE_MIN } from '@/core/config';
+import { previousDistanceNode, previousMatrix4dNode } from '@/core/motion';
 import { pixelRatioNode } from '@/core/screen';
 
+import { clipPrevious, screenVelocity } from './screenVelocity';
 import { projectPoint4D } from './stereographicProjection';
 
 export interface ThickEdgeInputs {
@@ -23,21 +25,41 @@ export interface ThickEdgeInputs {
   readonly widthPx: Node<'float'>;
 }
 
-export function thickEdgeVertex({ matrix4d, distance, widthPx }: ThickEdgeInputs) {
-  return Fn(() => {
-    const positionA = attribute('positionA', 'vec3');
-    const positionAW = attribute('positionAW', 'float');
-    const positionB = attribute('positionB', 'vec3');
-    const positionBW = attribute('positionBW', 'float');
-    const corner = attribute('corner', 'vec2');
+export interface ThickEdgeNodes {
+  readonly vertex: Node<'vec4'>;
+  readonly velocity: Node<'vec2'>;
+}
 
+export function thickEdgeVertex({ matrix4d, distance, widthPx }: ThickEdgeInputs): ThickEdgeNodes {
+  const positionA = attribute('positionA', 'vec3');
+  const positionAW = attribute('positionAW', 'float');
+  const positionB = attribute('positionB', 'vec3');
+  const positionBW = attribute('positionBW', 'float');
+  const corner = attribute('corner', 'vec2');
+  const end = corner.x;
+
+  const centerNow = mix(
+    projectPoint4D(vec4(positionA, positionAW), matrix4d, distance),
+    projectPoint4D(vec4(positionB, positionBW), matrix4d, distance),
+    end,
+  );
+  const centerPrevious = mix(
+    projectPoint4D(vec4(positionA, positionAW), previousMatrix4dNode, previousDistanceNode),
+    projectPoint4D(vec4(positionB, positionBW), previousMatrix4dNode, previousDistanceNode),
+    end,
+  );
+  const velocity = screenVelocity(
+    cameraProjectionMatrix.mul(modelViewMatrix.mul(vec4(centerNow, 1))),
+    clipPrevious(centerPrevious),
+  );
+
+  const vertex = Fn(() => {
     const projectedA = projectPoint4D(vec4(positionA, positionAW), matrix4d, distance);
     const projectedB = projectPoint4D(vec4(positionB, positionBW), matrix4d, distance);
 
     const clipA = cameraProjectionMatrix.mul(modelViewMatrix.mul(vec4(projectedA, 1)));
     const clipB = cameraProjectionMatrix.mul(modelViewMatrix.mul(vec4(projectedB, 1)));
 
-    const end = corner.x;
     const side = corner.y;
     const clip = mix(clipA, clipB, end);
 
@@ -59,4 +81,6 @@ export function thickEdgeVertex({ matrix4d, distance, widthPx }: ThickEdgeInputs
 
     return vec4(clip.xy.add(offset.mul(clip.w)), clip.zw);
   })();
+
+  return { vertex, velocity };
 }

@@ -78,3 +78,10 @@ export const HOPF_MAX_FIBERS = 64;
 export const HOPF_SAMPLES_PER_FIBER = 96;
 export const HOPF_EDGE_WIDTH_PX = 1.4;
 export const HOPF_FIBERS_DEFAULT = 0;
+
+export const DOF_FOCAL_LENGTH = 1.2;
+export const DOF_BOKEH_DEFAULT = 1.5;
+export const DOF_BOKEH_MAX = 4;
+export const MOTION_BLUR_DEFAULT = 1;
+export const MOTION_BLUR_MAX = 3;
+export const MOTION_BLUR_SAMPLES = 12;
