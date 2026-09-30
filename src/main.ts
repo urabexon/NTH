@@ -93,6 +93,8 @@ async function bootstrap(): Promise<void> {
   if (params.has('motionBlur'))
     parameters.jumpTo('motionBlur', readNumber(params, 'motionBlur') ?? 0);
   if (params.has('dof')) parameters.jumpTo('dof', readNumber(params, 'dof') ?? 0);
+  if (params.has('rotationSpeed'))
+    parameters.jumpTo('rotationSpeed', readNumber(params, 'rotationSpeed') ?? 0.5);
   if (params.has('d')) parameters.jumpTo('distance', sliderFromDistance(projector.distance));
   if (params.has('scale')) parameters.jumpTo('scale', polytopes.scale.x);
   if (params.has('bloom')) parameters.jumpTo('bloomStrength', pipeline.bloomStrength);
