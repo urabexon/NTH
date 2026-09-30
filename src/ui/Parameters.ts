@@ -5,6 +5,8 @@ import {
   EDGE_WIDTH_DEFAULT_PX,
   EDGE_WIDTH_MAX_PX,
   EDGE_WIDTH_MIN_PX,
+  HOPF_FIBERS_DEFAULT,
+  HOPF_MAX_FIBERS,
   LENS_RADIUS_DEFAULT_PX,
   LENS_RADIUS_MAX_PX,
   LENS_RADIUS_MIN_PX,
@@ -19,6 +21,7 @@ import {
 } from '@/core/config';
 import type { Projector4D } from '@/core/Projector4D';
 import type { Rotor4D } from '@/core/Rotor4D';
+import type { HopfFibration } from '@/geometry/HopfFibration';
 import type { PolytopeManager } from '@/geometry/PolytopeManager';
 import type { Pipeline } from '@/post/Pipeline';
 
@@ -30,6 +33,7 @@ export interface ParameterTargets {
   readonly polytopes: PolytopeManager;
   readonly pipeline: Pipeline;
   readonly orbit: OrbitalCamera;
+  readonly hopf: HopfFibration;
 }
 
 export const PARAMETER_KEYS = [
@@ -40,6 +44,7 @@ export const PARAMETER_KEYS = [
   'bloomStrength',
   'edgeWidth',
   'trails',
+  'fibers',
 ] as const;
 export type ParameterKey = (typeof PARAMETER_KEYS)[number];
 
@@ -66,6 +71,7 @@ export class Parameters {
       bloomStrength: new EasedValue(BLOOM_STRENGTH_DEFAULT, 0, BLOOM_STRENGTH_MAX),
       edgeWidth: new EasedValue(EDGE_WIDTH_DEFAULT_PX, EDGE_WIDTH_MIN_PX, EDGE_WIDTH_MAX_PX),
       trails: new EasedValue(TRAIL_DAMP_DEFAULT, 0, TRAIL_DAMP_MAX),
+      fibers: new EasedValue(HOPF_FIBERS_DEFAULT, 0, HOPF_MAX_FIBERS),
     };
     this.applyAll();
   }
@@ -91,7 +97,7 @@ export class Parameters {
 
   private apply(key: ParameterKey): void {
     const value = this.values[key].value;
-    const { projector, rotor, polytopes, pipeline } = this.targets;
+    const { projector, rotor, polytopes, pipeline, hopf } = this.targets;
     switch (key) {
       case 'distance':
         projector.distance = distanceFromSlider(value);
@@ -113,6 +119,9 @@ export class Parameters {
         break;
       case 'trails':
         pipeline.trailDamp = value;
+        break;
+      case 'fibers':
+        hopf.fiberCount = value;
         break;
     }
   }

@@ -85,7 +85,7 @@ test.describe('app boot', () => {
       await expect(panel).toHaveCount(0);
       await page.keyboard.press('KeyH');
       await expect(panel).toHaveAttribute('data-visible', 'true');
-      await expect(panel.locator('.tp-lblv')).toHaveCount(9);
+      await expect(panel.locator('.tp-lblv')).toHaveCount(10);
       await page.waitForTimeout(300);
       await page.screenshot({ path: testInfo.outputPath('panel.png') });
       await page.keyboard.press('KeyH');
@@ -126,6 +126,23 @@ test.describe('app boot', () => {
         await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
         await page.waitForTimeout(400);
         await page.screenshot({ path: testInfo.outputPath(`edges-${name}.png`) });
+        expect(errors).toEqual([]);
+      });
+    }
+  });
+
+  test.describe('hopf fibration', () => {
+    for (const [name, query] of Object.entries({
+      'fibers-64': 'fibers=64&scale=0.001&particles=0&trails=0',
+      'fibers-16-with-polytope': 'fibers=16&polytope=24-cell&particles=0&trails=0',
+    })) {
+      test(`${name} renders without errors`, async ({ page }, testInfo) => {
+        const errors: string[] = [];
+        page.on('pageerror', (error) => errors.push(error.message));
+        await page.goto(`/?seed=1&${query}`);
+        await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+        await page.waitForTimeout(400);
+        await page.screenshot({ path: testInfo.outputPath(`hopf-${name}.png`) });
         expect(errors).toEqual([]);
       });
     }

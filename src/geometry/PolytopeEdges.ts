@@ -7,8 +7,15 @@ import { thickEdgeVertex } from '@/shaders/thickEdge';
 
 import { buildEdgeSegments } from './edgeSegments';
 import type { EdgeStyle } from './EdgeStyle';
-import type { Graph } from './Graph';
+import type { Edge } from './Graph';
+import type { Vec4 } from './schema';
 import type { Rgb } from './vertexColors';
+
+export interface EdgeSource {
+  readonly name: string;
+  readonly vertices: readonly Vec4[];
+  readonly edges: readonly Edge[];
+}
 
 export interface PolytopeEdgesOptions {
   readonly projector: Projector4D;
@@ -18,7 +25,7 @@ export interface PolytopeEdgesOptions {
 }
 
 export class PolytopeEdges extends Mesh<BufferGeometry, MeshBasicNodeMaterial> {
-  constructor(graph: Graph, options: PolytopeEdgesOptions) {
+  constructor(graph: EdgeSource, options: PolytopeEdgesOptions) {
     const segments = buildEdgeSegments(
       graph.vertices,
       options.colors,
