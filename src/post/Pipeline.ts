@@ -52,6 +52,7 @@ export class Pipeline {
     );
 
     const lit = options.bloomEnabled === false ? color : color.add(this.bloomNode);
+    this.bloomNode.setResolutionScale(1 / renderer.getPixelRatio());
     const composed = this.composite.apply(convertToTexture(lit));
     this.post = new RenderPipeline(renderer, fxaa(composed));
   }
