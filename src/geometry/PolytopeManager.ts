@@ -16,6 +16,7 @@ export interface PolytopeManagerOptions {
 }
 
 export type ProgressCallback = (built: number, total: number) => void;
+export type ChangeListener = (slug: string, polytope: Polytope) => void;
 
 export class PolytopeManager extends Group {
   readonly slugs: readonly string[];
@@ -30,6 +31,7 @@ export class PolytopeManager extends Group {
   private readonly meshes = new Map<string, Polytope>();
   private facesShown = false;
   private currentSlug: string | null = null;
+  private readonly listeners = new Set<ChangeListener>();
 
   constructor(graphs: GraphSet, options: PolytopeManagerOptions) {
     super();
@@ -77,12 +79,25 @@ export class PolytopeManager extends Group {
     }
   }
 
+  get maxEdgeCount(): number {
+    let max = 0;
+    for (const graph of this.graphs.values()) max = Math.max(max, graph.edges.length);
+    return max;
+  }
+
+  onChange(listener: ChangeListener): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
   show(slug: string): void {
     const mesh = this.meshes.get(slug);
     if (!mesh) throw new Error(`Unknown polytope: ${slug}`);
     for (const other of this.meshes.values()) other.visible = false;
     mesh.visible = true;
+    const changed = this.currentSlug !== slug;
     this.currentSlug = slug;
+    if (changed) for (const listener of this.listeners) listener(slug, mesh);
   }
 
   showRandom(): string {

@@ -7,6 +7,7 @@ import {
   LENS_RADIUS_MIN_PX,
   POLYTOPE_SCALE_MAX,
   POLYTOPE_SCALE_MIN,
+  TRAIL_DAMP_MAX,
 } from '@/core/config';
 
 import { PARAMETER_KEYS, type ParameterKey, type Parameters } from './Parameters';
@@ -25,10 +26,12 @@ const SLIDERS: Readonly<Record<ParameterKey, SliderSpec>> = {
   lensRadius: { label: 'lens radius', min: LENS_RADIUS_MIN_PX, max: LENS_RADIUS_MAX_PX, step: 1 },
   bloomStrength: { label: 'bloom', min: 0, max: 1, step: 0.001 },
   edgeWidth: { label: 'edge width', min: EDGE_WIDTH_MIN_PX, max: EDGE_WIDTH_MAX_PX, step: 0.1 },
+  trails: { label: 'trails', min: 0, max: TRAIL_DAMP_MAX, step: 0.001 },
 };
 
 export interface PanelToggles {
   faces: boolean;
+  particles: boolean;
 }
 
 export class ControlPanel {
@@ -64,9 +67,11 @@ export class ControlPanel {
           parameters.set(key, event.value);
         });
     }
-    this.pane.addBinding(toggles, 'faces', { label: 'faces' }).on('change', (event) => {
-      onToggle('faces', event.value);
-    });
+    for (const key of ['faces', 'particles'] as const) {
+      this.pane.addBinding(toggles, key, { label: key }).on('change', (event) => {
+        onToggle(key, event.value);
+      });
+    }
     this.visible = false;
   }
 

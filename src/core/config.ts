@@ -64,3 +64,12 @@ export const EDGE_WIDTH_MAX_PX = 8;
 export const EDGE_DEPTH_REFERENCE = 3;
 export const EDGE_DEPTH_SCALE_MIN = 0.35;
 export const EDGE_DEPTH_SCALE_MAX = 3;
+
+export const PARTICLE_COUNT = 4096;
+export const PARTICLE_SIZE = 0.018;
+export const PARTICLE_SPEED_MIN = 0.15;
+export const PARTICLE_SPEED_MAX = 0.5;
+export const TRAIL_DAMP_DEFAULT = 0.5;
+export const TRAIL_DAMP_MAX = 0.98;
+export const PARTICLE_OPACITY = 0.3;
+export const PARTICLE_COLOR = 0xff9ad6;

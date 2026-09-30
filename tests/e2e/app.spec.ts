@@ -85,7 +85,7 @@ test.describe('app boot', () => {
       await expect(panel).toHaveCount(0);
       await page.keyboard.press('KeyH');
       await expect(panel).toHaveAttribute('data-visible', 'true');
-      await expect(panel.locator('.tp-lblv')).toHaveCount(7);
+      await expect(panel.locator('.tp-lblv')).toHaveCount(9);
       await page.waitForTimeout(300);
       await page.screenshot({ path: testInfo.outputPath('panel.png') });
       await page.keyboard.press('KeyH');
@@ -126,6 +126,29 @@ test.describe('app boot', () => {
         await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
         await page.waitForTimeout(400);
         await page.screenshot({ path: testInfo.outputPath(`edges-${name}.png`) });
+        expect(errors).toEqual([]);
+      });
+    }
+  });
+
+  test.describe('particles', () => {
+    for (const [name, query] of Object.entries({
+      default: '',
+      'long-trails': 'trails=0.95',
+      off: 'particles=0&trails=0',
+    })) {
+      test(`${name} renders without errors`, async ({ page }, testInfo) => {
+        const errors: string[] = [];
+        page.on('pageerror', (error) => errors.push(error.message));
+        page.on('console', (message) => {
+          if (message.type() === 'error') errors.push(message.text());
+        });
+        await page.goto(`/?seed=1&polytope=24-cell&${query}`);
+        const html = page.locator('html');
+        await expect(html).toHaveAttribute('data-ready', 'true');
+        await expect(html).toHaveAttribute('data-particles', name === 'off' ? 'false' : 'true');
+        await page.waitForTimeout(1500);
+        await page.screenshot({ path: testInfo.outputPath(`particles-${name}.png`) });
         expect(errors).toEqual([]);
       });
     }
@@ -197,8 +220,15 @@ test.describe('app boot', () => {
     }
   });
 
-  test('falls back to WebGL2 when forced', async ({ page }) => {
-    await page.goto('/?webgl');
-    await expect(page.locator('html')).toHaveAttribute('data-backend', 'webgl2');
+  test('falls back to WebGL2 when forced and skips particles', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.goto('/?webgl&seed=1');
+    const html = page.locator('html');
+    await expect(html).toHaveAttribute('data-backend', 'webgl2');
+    await expect(html).toHaveAttribute('data-ready', 'true');
+    await expect(html).toHaveAttribute('data-particles', 'false');
+    await page.waitForTimeout(500);
+    expect(errors).toEqual([]);
   });
 });
