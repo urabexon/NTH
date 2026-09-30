@@ -29,7 +29,7 @@ export class PolytopeManager extends Group {
   readonly edgeStyle = new EdgeStyle();
 
   private readonly meshes = new Map<string, Polytope>();
-  private facesShown = false;
+  private facesShown = true;
   private currentSlug: string | null = null;
   private readonly listeners = new Set<ChangeListener>();
 

@@ -36,7 +36,6 @@ export class Polytope extends Group {
       subdivision: options.subdivision,
       colors,
     });
-    this.faces.visible = false;
     this.add(this.edges, this.faces);
   }
 
