@@ -1,9 +1,8 @@
 import { afterImage } from 'three/addons/tsl/display/AfterImageNode.js';
 import { bloom } from 'three/addons/tsl/display/BloomNode.js';
 import { dof } from 'three/addons/tsl/display/DepthOfFieldNode.js';
-import { motionBlur } from 'three/addons/tsl/display/MotionBlur.js';
 import { fxaa } from 'three/addons/tsl/display/FXAANode.js';
-import { convertToTexture, int, mrt, output, pass, uniform, velocity } from 'three/tsl';
+import { convertToTexture, mrt, output, pass, uniform, velocity } from 'three/tsl';
 import {
   RenderPipeline,
   type Camera,
@@ -22,7 +21,6 @@ import {
   DOF_FOCAL_LENGTH,
   MOTION_BLUR_DEFAULT,
   MOTION_BLUR_MAX,
-  MOTION_BLUR_SAMPLES,
   TRAIL_DAMP_DEFAULT,
   TRAIL_DAMP_MAX,
 } from '@/core/config';
@@ -30,6 +28,7 @@ import { clamp } from '@/core/easing';
 
 import { CompositeEffect } from './CompositeEffect';
 import { DeformEffect } from './DeformEffect';
+import { motionStreak } from './motionStreak';
 
 export interface PipelineOptions {
   readonly bloomEnabled?: boolean;
@@ -56,11 +55,7 @@ export class Pipeline {
     scenePass.setMRT(mrt({ output, velocity }));
     const sceneColor = scenePass.getTextureNode('output');
     const sceneVelocity = scenePass.getTextureNode('velocity');
-    const blurred = motionBlur(
-      sceneColor,
-      sceneVelocity.xy.mul(this.motionBlurNode),
-      int(MOTION_BLUR_SAMPLES),
-    );
+    const blurred = motionStreak(sceneColor, sceneVelocity, this.motionBlurNode);
     const focused = dof(
       blurred,
       scenePass.getViewZNode(),
