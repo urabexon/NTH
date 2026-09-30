@@ -79,10 +79,15 @@ export const HOPF_SAMPLES_PER_FIBER = 96;
 export const HOPF_EDGE_WIDTH_PX = 1.4;
 export const HOPF_FIBERS_DEFAULT = 0;
 
-export const DOF_FOCAL_LENGTH = 1.2;
+export const DOF_FOCAL_LENGTH = 3;
 export const DOF_BOKEH_DEFAULT = 1.5;
 export const DOF_BOKEH_MAX = 4;
 export const MOTION_BLUR_DEFAULT = 0.6;
 export const MOTION_BLUR_MAX = 3;
 export const MOTION_BLUR_SAMPLES = 12;
 export const MOTION_DILATE_PX = 14;
+export const MOTION_MAX_STREAK_NDC = 0.025;
+
+export const GLASS_OPACITY = 0.055;
+export const GLASS_REFERENCE_TRIANGLES = 48;
+export const GLASS_DENSITY_POWER = 0.6;

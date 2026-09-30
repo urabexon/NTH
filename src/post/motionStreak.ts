@@ -1,7 +1,7 @@
-import { dot, float, Fn, max, screenSize, uv, vec2 } from 'three/tsl';
+import { dot, float, Fn, length, max, min, screenSize, uv, vec2 } from 'three/tsl';
 import type { Node, TextureNode } from 'three/webgpu';
 
-import { MOTION_BLUR_SAMPLES, MOTION_DILATE_PX } from '@/core/config';
+import { MOTION_BLUR_SAMPLES, MOTION_DILATE_PX, MOTION_MAX_STREAK_NDC } from '@/core/config';
 
 const TAP_DIRECTIONS: readonly (readonly [number, number])[] = [
   [1, 0],
@@ -37,11 +37,13 @@ export function motionStreak(
       }
     }
 
-    const streak = best.mul(amount);
+    const raw = best.mul(amount);
+    const rawLength = max(length(raw), 1e-6);
+    const streak = raw.mul(min(rawLength, MOTION_MAX_STREAK_NDC).div(rawLength));
     const result = color.sample(uvs).toVar();
     for (let i = 1; i < MOTION_BLUR_SAMPLES; i++) {
       const t = i / (MOTION_BLUR_SAMPLES - 1) - 0.5;
-      const weight = 1 - Math.abs(t) * 1.2;
+      const weight = Math.pow(1 - Math.abs(t) * 2, 2) * 0.9 + 0.1;
       const sample = color.sample(uvs.add(streak.mul(t))).mul(weight);
       result.assign(max(result, sample));
     }

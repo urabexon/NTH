@@ -102,7 +102,7 @@ async function bootstrap(): Promise<void> {
     parameters.jumpTo('trails', readNumber(params, 'trails') ?? TRAIL_DAMP_DEFAULT);
   if (params.has('edge'))
     parameters.jumpTo('edgeWidth', readNumber(params, 'edge') ?? EDGE_WIDTH_DEFAULT_PX);
-  polytopes.facesVisible = params.has('faces');
+  polytopes.facesVisible = params.get('faces') !== '0';
   const particles =
     backend === 'webgpu' && params.get('particles') !== '0'
       ? new EdgeParticles({ projector, maxEdges: polytopes.maxEdgeCount })

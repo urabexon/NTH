@@ -1,10 +1,11 @@
-import { BufferAttribute, BufferGeometry, DoubleSide, Mesh } from 'three';
+import { BufferAttribute, BufferGeometry, DoubleSide, Mesh, NormalBlending } from 'three';
 import { mrt, output } from 'three/tsl';
 import { MeshBasicNodeMaterial } from 'three/webgpu';
 
 import type { Projector4D } from '@/core/Projector4D';
 import { previousDistanceNode, previousMatrix4dNode } from '@/core/motion';
 import { clipNow, clipPrevious, screenVelocity } from '@/shaders/screenVelocity';
+import { glassOpacity } from '@/shaders/glassSurface';
 import { stereographicProjection } from '@/shaders/stereographicProjection';
 
 import type { Graph } from './Graph';
@@ -31,11 +32,12 @@ export class PolytopeMesh extends Mesh<BufferGeometry, MeshBasicNodeMaterial> {
 
     const material = new MeshBasicNodeMaterial({
       vertexColors: true,
-      wireframe: true,
       side: DoubleSide,
       transparent: true,
-      opacity: 0.8,
+      depthWrite: false,
+      blending: NormalBlending,
     });
+    material.opacityNode = glassOpacity(graph.triangles.length);
     const projected = stereographicProjection(
       options.projector.matrixNode,
       options.projector.distanceNode,

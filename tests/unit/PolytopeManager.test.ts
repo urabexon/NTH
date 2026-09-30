@@ -40,7 +40,7 @@ describe('PolytopeManager', () => {
     manager.show('120-cell');
     expect(manager.currentMesh?.name).toBe('120-cell');
     expect(manager.currentMesh?.edges.visible).toBe(true);
-    expect(manager.currentMesh?.faces.visible).toBe(false);
+    expect(manager.currentMesh?.faces.visible).toBe(true);
     expect(manager.children.filter((child) => child.visible)).toHaveLength(1);
   });
 
@@ -81,12 +81,12 @@ describe('PolytopeManager', () => {
   test('facesVisible toggles the face meshes of every polytope', async () => {
     const manager = createManager();
     await manager.build();
-    manager.facesVisible = true;
+    manager.facesVisible = false;
     expect(manager.currentMesh).toBeNull();
     manager.show('hypercube');
-    expect(manager.currentMesh?.faces.visible).toBe(true);
-    manager.facesVisible = false;
     expect(manager.currentMesh?.faces.visible).toBe(false);
+    manager.facesVisible = true;
+    expect(manager.currentMesh?.faces.visible).toBe(true);
   });
 
   test('setAllVisible(false) restores only the current mesh', async () => {

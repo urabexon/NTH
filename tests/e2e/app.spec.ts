@@ -115,14 +115,18 @@ test.describe('app boot', () => {
 
   test.describe('edges', () => {
     for (const [name, query] of Object.entries({
-      thin: 'edge=0.5',
-      thick: 'edge=6',
-      faces: 'faces',
+      thin: 'polytope=hypercube&edge=0.5',
+      thick: 'polytope=hypercube&edge=6',
+      'faces-off': 'polytope=hypercube&faces=0',
+      'glass-120-cell': 'polytope=120-cell&particles=0&trails=0',
+      'glass-only-24-cell': 'polytope=24-cell&particles=0&trails=0',
+      'glass-only-hypercube': 'polytope=hypercube&particles=0&trails=0',
+      'glass-no-dof': 'polytope=hypercube&particles=0&trails=0&dof=0',
     })) {
       test(`${name} renders without errors`, async ({ page }, testInfo) => {
         const errors: string[] = [];
         page.on('pageerror', (error) => errors.push(error.message));
-        await page.goto(`/?seed=1&polytope=hypercube&${query}`);
+        await page.goto(`/?seed=1&${query}`);
         await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
         await page.waitForTimeout(400);
         await page.screenshot({ path: testInfo.outputPath(`edges-${name}.png`) });
