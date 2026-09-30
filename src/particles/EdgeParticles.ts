@@ -9,6 +9,8 @@ import {
   instanceIndex,
   length,
   mix,
+  mrt,
+  output,
   smoothstep,
   uniform,
   uv,
@@ -24,7 +26,9 @@ import {
   PARTICLE_SPEED_MAX,
   PARTICLE_SPEED_MIN,
 } from '@/core/config';
+import { previousDistanceNode, previousMatrix4dNode } from '@/core/motion';
 import type { Projector4D } from '@/core/Projector4D';
+import { clipNow, clipPrevious, screenVelocity } from '@/shaders/screenVelocity';
 import type { Graph } from '@/geometry/Graph';
 import { projectPoint4D } from '@/shaders/stereographicProjection';
 
@@ -92,11 +96,17 @@ export class EdgeParticles extends Sprite {
     const particle = state.element(instanceIndex);
     const edgeIndex = particle.x.toUint();
     const point = mix(edgeA.element(edgeIndex), edgeB.element(edgeIndex), particle.y);
-    material.positionNode = projectPoint4D(
+    const projected = projectPoint4D(
       point,
       options.projector.matrixNode,
       options.projector.distanceNode,
     );
+    const projectedPrevious = projectPoint4D(point, previousMatrix4dNode, previousDistanceNode);
+    material.positionNode = projected;
+    material.mrtNode = mrt({
+      output,
+      velocity: screenVelocity(clipNow(projected), clipPrevious(projectedPrevious)),
+    });
     material.scaleNode = size;
     material.colorNode = uniform(new Color(options.color ?? PARTICLE_COLOR));
     material.opacityNode = smoothstep(0.5, 0.1, length(uv().sub(0.5))).mul(PARTICLE_OPACITY);

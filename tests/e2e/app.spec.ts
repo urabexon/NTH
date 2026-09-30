@@ -85,7 +85,7 @@ test.describe('app boot', () => {
       await expect(panel).toHaveCount(0);
       await page.keyboard.press('KeyH');
       await expect(panel).toHaveAttribute('data-visible', 'true');
-      await expect(panel.locator('.tp-lblv')).toHaveCount(10);
+      await expect(panel.locator('.tp-lblv')).toHaveCount(12);
       await page.waitForTimeout(300);
       await page.screenshot({ path: testInfo.outputPath('panel.png') });
       await page.keyboard.press('KeyH');
@@ -126,6 +126,27 @@ test.describe('app boot', () => {
         await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
         await page.waitForTimeout(400);
         await page.screenshot({ path: testInfo.outputPath(`edges-${name}.png`) });
+        expect(errors).toEqual([]);
+      });
+    }
+  });
+
+  test.describe('depth of field and motion blur', () => {
+    for (const [name, query] of Object.entries({
+      'dof-strong': 'dof=4&motionBlur=0&particles=0&trails=0&polytope=120-cell',
+      'blur-strong': 'motionBlur=3&dof=0&particles=0&trails=0&polytope=hypercube',
+      'both-off': 'dof=0&motionBlur=0&particles=0&trails=0&polytope=hypercube',
+    })) {
+      test(`${name} renders without errors`, async ({ page }, testInfo) => {
+        const errors: string[] = [];
+        page.on('pageerror', (error) => errors.push(error.message));
+        page.on('console', (message) => {
+          if (message.type() === 'error') errors.push(message.text());
+        });
+        await page.goto(`/?seed=1&${query}`);
+        await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+        await page.waitForTimeout(600);
+        await page.screenshot({ path: testInfo.outputPath(`post-${name}.png`) });
         expect(errors).toEqual([]);
       });
     }

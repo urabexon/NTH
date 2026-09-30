@@ -2,8 +2,10 @@ import { Pane } from 'tweakpane';
 
 import {
   EDGE_WIDTH_MAX_PX,
+  DOF_BOKEH_MAX,
   EDGE_WIDTH_MIN_PX,
   HOPF_MAX_FIBERS,
+  MOTION_BLUR_MAX,
   LENS_RADIUS_MAX_PX,
   LENS_RADIUS_MIN_PX,
   POLYTOPE_SCALE_MAX,
@@ -29,6 +31,8 @@ const SLIDERS: Readonly<Record<ParameterKey, SliderSpec>> = {
   edgeWidth: { label: 'edge width', min: EDGE_WIDTH_MIN_PX, max: EDGE_WIDTH_MAX_PX, step: 0.1 },
   trails: { label: 'trails', min: 0, max: TRAIL_DAMP_MAX, step: 0.001 },
   fibers: { label: 'fibers', min: 0, max: HOPF_MAX_FIBERS, step: 1 },
+  motionBlur: { label: 'motion blur', min: 0, max: MOTION_BLUR_MAX, step: 0.01 },
+  dof: { label: 'depth of field', min: 0, max: DOF_BOKEH_MAX, step: 0.01 },
 };
 
 export interface PanelToggles {

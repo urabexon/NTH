@@ -2,6 +2,10 @@ import type { OrbitalCamera } from '@/camera/OrbitalCamera';
 import {
   BLOOM_STRENGTH_DEFAULT,
   BLOOM_STRENGTH_MAX,
+  DOF_BOKEH_DEFAULT,
+  DOF_BOKEH_MAX,
+  MOTION_BLUR_DEFAULT,
+  MOTION_BLUR_MAX,
   EDGE_WIDTH_DEFAULT_PX,
   EDGE_WIDTH_MAX_PX,
   EDGE_WIDTH_MIN_PX,
@@ -45,6 +49,8 @@ export const PARAMETER_KEYS = [
   'edgeWidth',
   'trails',
   'fibers',
+  'motionBlur',
+  'dof',
 ] as const;
 export type ParameterKey = (typeof PARAMETER_KEYS)[number];
 
@@ -72,6 +78,8 @@ export class Parameters {
       edgeWidth: new EasedValue(EDGE_WIDTH_DEFAULT_PX, EDGE_WIDTH_MIN_PX, EDGE_WIDTH_MAX_PX),
       trails: new EasedValue(TRAIL_DAMP_DEFAULT, 0, TRAIL_DAMP_MAX),
       fibers: new EasedValue(HOPF_FIBERS_DEFAULT, 0, HOPF_MAX_FIBERS),
+      motionBlur: new EasedValue(MOTION_BLUR_DEFAULT, 0, MOTION_BLUR_MAX),
+      dof: new EasedValue(DOF_BOKEH_DEFAULT, 0, DOF_BOKEH_MAX),
     };
     this.applyAll();
   }
@@ -122,6 +130,12 @@ export class Parameters {
         break;
       case 'fibers':
         hopf.fiberCount = value;
+        break;
+      case 'motionBlur':
+        pipeline.motionBlur = value;
+        break;
+      case 'dof':
+        pipeline.bokeh = value;
         break;
     }
   }

@@ -1,9 +1,10 @@
-import { Color, Scene } from 'three';
+import { Color, Scene, Vector3 } from 'three';
 
 import { OrbitalCamera } from './camera/OrbitalCamera';
 import { Projector4D } from './core/Projector4D';
 import { CLEAR_COLOR, EDGE_WIDTH_DEFAULT_PX, TRAIL_DAMP_DEFAULT } from './core/config';
 import { FpsMeter } from './core/FpsMeter';
+import { captureMotion } from './core/motion';
 import { createRenderer } from './core/renderer';
 import { Rotor4D } from './core/Rotor4D';
 import { Ticker } from './core/Ticker';
@@ -89,6 +90,9 @@ async function bootstrap(): Promise<void> {
   scene.add(hopf);
   const parameters = new Parameters({ projector, rotor, polytopes, pipeline, orbit, hopf });
   if (params.has('fibers')) parameters.jumpTo('fibers', readNumber(params, 'fibers') ?? 0);
+  if (params.has('motionBlur'))
+    parameters.jumpTo('motionBlur', readNumber(params, 'motionBlur') ?? 0);
+  if (params.has('dof')) parameters.jumpTo('dof', readNumber(params, 'dof') ?? 0);
   if (params.has('d')) parameters.jumpTo('distance', sliderFromDistance(projector.distance));
   if (params.has('scale')) parameters.jumpTo('scale', polytopes.scale.x);
   if (params.has('bloom')) parameters.jumpTo('bloomStrength', pipeline.bloomStrength);
@@ -131,6 +135,7 @@ async function bootstrap(): Promise<void> {
   });
   mirrorState(polytopes, pipeline, orbit);
 
+  const focusProbe = new Vector3();
   const fpsMeter = new FpsMeter((fps) => {
     document.documentElement.dataset.fps = fps.toFixed(0);
   });
@@ -141,7 +146,10 @@ async function bootstrap(): Promise<void> {
     orbit.update(dt);
     particles?.update(renderer, dt);
     pipeline.update(dt);
+    orbit.updateMatrixWorld(true);
+    pipeline.focusDistance = orbit.camera.getWorldPosition(focusProbe).length();
     pipeline.render();
+    captureMotion(rotor.matrix, projector.distance, orbit.camera);
     fpsMeter.tick(dt);
   });
   ticker.start();

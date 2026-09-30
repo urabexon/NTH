@@ -1,5 +1,5 @@
 import { BufferAttribute, BufferGeometry, Mesh, NormalBlending } from 'three';
-import { attribute } from 'three/tsl';
+import { attribute, mrt, output } from 'three/tsl';
 import { MeshBasicNodeMaterial } from 'three/webgpu';
 
 import type { Projector4D } from '@/core/Projector4D';
@@ -45,14 +45,16 @@ export class PolytopeEdges extends Mesh<BufferGeometry, MeshBasicNodeMaterial> {
 
     const material = new MeshBasicNodeMaterial({
       transparent: true,
-      depthWrite: false,
+      depthWrite: true,
       blending: NormalBlending,
     });
-    material.vertexNode = thickEdgeVertex({
+    const nodes = thickEdgeVertex({
       matrix4d: options.projector.matrixNode,
       distance: options.projector.distanceNode,
       widthPx: options.style.widthNode,
     });
+    material.vertexNode = nodes.vertex;
+    material.mrtNode = mrt({ output, velocity: nodes.velocity });
     material.colorNode = attribute('color', 'vec3');
 
     super(geometry, material);

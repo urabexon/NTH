@@ -1,7 +1,9 @@
 import { afterImage } from 'three/addons/tsl/display/AfterImageNode.js';
 import { bloom } from 'three/addons/tsl/display/BloomNode.js';
+import { dof } from 'three/addons/tsl/display/DepthOfFieldNode.js';
+import { motionBlur } from 'three/addons/tsl/display/MotionBlur.js';
 import { fxaa } from 'three/addons/tsl/display/FXAANode.js';
-import { convertToTexture, pass, uniform } from 'three/tsl';
+import { convertToTexture, int, mrt, output, pass, uniform, velocity } from 'three/tsl';
 import {
   RenderPipeline,
   type Camera,
@@ -14,6 +16,13 @@ import {
   BLOOM_RADIUS_DEFAULT,
   BLOOM_STRENGTH_DEFAULT,
   BLOOM_THRESHOLD_DEFAULT,
+  CAMERA_DISTANCE,
+  DOF_BOKEH_DEFAULT,
+  DOF_BOKEH_MAX,
+  DOF_FOCAL_LENGTH,
+  MOTION_BLUR_DEFAULT,
+  MOTION_BLUR_MAX,
+  MOTION_BLUR_SAMPLES,
   TRAIL_DAMP_DEFAULT,
   TRAIL_DAMP_MAX,
 } from '@/core/config';
@@ -30,6 +39,9 @@ export class Pipeline {
   readonly deform = new DeformEffect();
   readonly composite = new CompositeEffect();
   readonly trailDampNode = uniform(TRAIL_DAMP_DEFAULT);
+  readonly motionBlurNode = uniform(MOTION_BLUR_DEFAULT);
+  readonly bokehNode = uniform(DOF_BOKEH_DEFAULT);
+  readonly focusDistanceNode = uniform(CAMERA_DISTANCE);
 
   private readonly post: RenderPipeline;
   private readonly bloomNode;
@@ -41,7 +53,22 @@ export class Pipeline {
     options: PipelineOptions = {},
   ) {
     const scenePass = pass(scene, camera);
-    const deformed = this.deform.apply(scenePass.getTextureNode('output'));
+    scenePass.setMRT(mrt({ output, velocity }));
+    const sceneColor = scenePass.getTextureNode('output');
+    const sceneVelocity = scenePass.getTextureNode('velocity');
+    const blurred = motionBlur(
+      sceneColor,
+      sceneVelocity.xy.mul(this.motionBlurNode),
+      int(MOTION_BLUR_SAMPLES),
+    );
+    const focused = dof(
+      blurred,
+      scenePass.getViewZNode(),
+      this.focusDistanceNode,
+      DOF_FOCAL_LENGTH,
+      this.bokehNode,
+    );
+    const deformed = this.deform.apply(convertToTexture(focused));
     const color = afterImage(deformed, this.trailDampNode) as unknown as Node<'vec4'>;
 
     this.bloomNode = bloom(
@@ -55,6 +82,30 @@ export class Pipeline {
     this.bloomNode.setResolutionScale(1 / renderer.getPixelRatio());
     const composed = this.composite.apply(convertToTexture(lit));
     this.post = new RenderPipeline(renderer, fxaa(composed));
+  }
+
+  get motionBlur(): number {
+    return this.motionBlurNode.value;
+  }
+
+  set motionBlur(value: number) {
+    this.motionBlurNode.value = clamp(value, 0, MOTION_BLUR_MAX);
+  }
+
+  get bokeh(): number {
+    return this.bokehNode.value;
+  }
+
+  set bokeh(value: number) {
+    this.bokehNode.value = clamp(value, 0, DOF_BOKEH_MAX);
+  }
+
+  get focusDistance(): number {
+    return this.focusDistanceNode.value;
+  }
+
+  set focusDistance(value: number) {
+    this.focusDistanceNode.value = Math.max(0.01, value);
   }
 
   get trailDamp(): number {
