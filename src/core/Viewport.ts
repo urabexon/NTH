@@ -2,6 +2,7 @@ import type { WebGPURenderer } from 'three/webgpu';
 
 import { FRAME_ASPECT } from './config';
 import { fitAspect } from './letterbox';
+import { setPixelRatio } from './screen';
 
 export class Viewport {
   constructor(
@@ -22,5 +23,6 @@ export class Viewport {
       this.aspect,
     );
     this.renderer.setSize(width, height, true);
+    setPixelRatio(this.renderer.getPixelRatio());
   };
 }

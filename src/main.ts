@@ -9,6 +9,7 @@ import { Rotor4D } from './core/Rotor4D';
 import { Ticker } from './core/Ticker';
 import { Viewport } from './core/Viewport';
 import { loadGraphs } from './geometry/loadGraphs';
+import { HopfFibration } from './geometry/HopfFibration';
 import { PolytopeManager } from './geometry/PolytopeManager';
 import { EFFECT_KINDS, type EffectKind } from './post/DeformEffect';
 import { EdgeParticles } from './particles/EdgeParticles';
@@ -84,7 +85,10 @@ async function bootstrap(): Promise<void> {
   document.documentElement.dataset.polytope = polytopes.current ?? '';
   document.documentElement.dataset.ready = 'true';
 
-  const parameters = new Parameters({ projector, rotor, polytopes, pipeline, orbit });
+  const hopf = new HopfFibration({ projector });
+  scene.add(hopf);
+  const parameters = new Parameters({ projector, rotor, polytopes, pipeline, orbit, hopf });
+  if (params.has('fibers')) parameters.jumpTo('fibers', readNumber(params, 'fibers') ?? 0);
   if (params.has('d')) parameters.jumpTo('distance', sliderFromDistance(projector.distance));
   if (params.has('scale')) parameters.jumpTo('scale', polytopes.scale.x);
   if (params.has('bloom')) parameters.jumpTo('bloomStrength', pipeline.bloomStrength);
@@ -147,6 +151,7 @@ async function bootstrap(): Promise<void> {
     keybinds.dispose();
     legend.dispose();
     panel.dispose();
+    hopf.dispose();
     viewport.dispose();
     void renderer.dispose();
   });

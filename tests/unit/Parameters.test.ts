@@ -24,6 +24,7 @@ function stubTargets() {
     },
     pipeline: { bloomStrength: 0, trailDamp: 0, deform: { lensRadiusPx: 0 } },
     orbit: {},
+    hopf: { fiberCount: 0 },
   };
   return targets;
 }
@@ -68,7 +69,7 @@ describe('Parameters', () => {
     expect(targets.polytopes.scale.x).toBe(1);
     expect(targets.pipeline.deform.lensRadiusPx).toBe(400);
     expect(targets.pipeline.bloomStrength).toBeCloseTo(0.3, 6);
-    expect(targets.polytopes.edgeStyle.widthPx).toBe(2);
+    expect(targets.polytopes.edgeStyle.widthPx).toBe(3);
     expect(targets.pipeline.trailDamp).toBeCloseTo(0.5, 6);
   });
 

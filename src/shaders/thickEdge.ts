@@ -13,6 +13,7 @@ import {
 import type { Node } from 'three/webgpu';
 
 import { EDGE_DEPTH_REFERENCE, EDGE_DEPTH_SCALE_MAX, EDGE_DEPTH_SCALE_MIN } from '@/core/config';
+import { pixelRatioNode } from '@/core/screen';
 
 import { projectPoint4D } from './stereographicProjection';
 
@@ -51,7 +52,7 @@ export function thickEdgeVertex({ matrix4d, distance, widthPx }: ThickEdgeInputs
       EDGE_DEPTH_SCALE_MIN,
       EDGE_DEPTH_SCALE_MAX,
     );
-    const halfWidthNdc = widthPx.mul(depthScale).div(screenSize.y);
+    const halfWidthNdc = widthPx.mul(pixelRatioNode).mul(depthScale).div(screenSize.y);
 
     const extension = direction.mul(halfWidthNdc).mul(end.mul(2).sub(1));
     const offset = normal.mul(halfWidthNdc).mul(side).add(extension).div(vec2(aspect, 1));

@@ -32,6 +32,7 @@ import {
   TURBULENCE_SCALE,
 } from '@/core/config';
 import { clamp, easeToward } from '@/core/easing';
+import { pixelRatioNode } from '@/core/screen';
 
 export const EFFECT_KINDS = ['none', 'repeat', 'mirror-left', 'mirror-right'] as const;
 export type EffectKind = (typeof EFFECT_KINDS)[number];
@@ -132,9 +133,10 @@ export class DeformEffect {
       const centered = coord.sub(half);
       const r = length(centered);
       const angle = atan(centered.y, centered.x);
-      const phase = mix(Math.PI / 2, Math.PI * 2, r.div(lensRadius));
-      const bent = lensRadius.mul(cos(phase)).mul(r.div(lensRadius));
-      const lensR = select(r.lessThan(lensRadius), bent, r);
+      const lensRadiusDevice = lensRadius.mul(pixelRatioNode);
+      const phase = mix(Math.PI / 2, Math.PI * 2, r.div(lensRadiusDevice));
+      const bent = lensRadiusDevice.mul(cos(phase)).mul(r.div(lensRadiusDevice));
+      const lensR = select(r.lessThan(lensRadiusDevice), bent, r);
       const lensCoord = vec2(cos(angle), sin(angle)).mul(lensR).add(half);
       const finalCoord = mix(coord, lensCoord, lensIntensity);
 

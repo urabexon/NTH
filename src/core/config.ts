@@ -58,7 +58,7 @@ export const POLYTOPE_SCALE_MIN = 0.25;
 export const POLYTOPE_SCALE_MAX = 2;
 export const BLOOM_STRENGTH_MAX = 1;
 
-export const EDGE_WIDTH_DEFAULT_PX = 2;
+export const EDGE_WIDTH_DEFAULT_PX = 3;
 export const EDGE_WIDTH_MIN_PX = 0.5;
 export const EDGE_WIDTH_MAX_PX = 8;
 export const EDGE_DEPTH_REFERENCE = 3;
@@ -73,3 +73,8 @@ export const TRAIL_DAMP_DEFAULT = 0.5;
 export const TRAIL_DAMP_MAX = 0.98;
 export const PARTICLE_OPACITY = 0.3;
 export const PARTICLE_COLOR = 0xff9ad6;
+
+export const HOPF_MAX_FIBERS = 64;
+export const HOPF_SAMPLES_PER_FIBER = 96;
+export const HOPF_EDGE_WIDTH_PX = 1.4;
+export const HOPF_FIBERS_DEFAULT = 0;
