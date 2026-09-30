@@ -14,6 +14,8 @@ import {
   PROJECTION_DISTANCE_MAX,
   PROJECTION_DISTANCE_MIN,
   ROTATION_SPEED_MAX,
+  TRAIL_DAMP_DEFAULT,
+  TRAIL_DAMP_MAX,
 } from '@/core/config';
 import type { Projector4D } from '@/core/Projector4D';
 import type { Rotor4D } from '@/core/Rotor4D';
@@ -37,6 +39,7 @@ export const PARAMETER_KEYS = [
   'lensRadius',
   'bloomStrength',
   'edgeWidth',
+  'trails',
 ] as const;
 export type ParameterKey = (typeof PARAMETER_KEYS)[number];
 
@@ -62,6 +65,7 @@ export class Parameters {
       lensRadius: new EasedValue(LENS_RADIUS_DEFAULT_PX, LENS_RADIUS_MIN_PX, LENS_RADIUS_MAX_PX),
       bloomStrength: new EasedValue(BLOOM_STRENGTH_DEFAULT, 0, BLOOM_STRENGTH_MAX),
       edgeWidth: new EasedValue(EDGE_WIDTH_DEFAULT_PX, EDGE_WIDTH_MIN_PX, EDGE_WIDTH_MAX_PX),
+      trails: new EasedValue(TRAIL_DAMP_DEFAULT, 0, TRAIL_DAMP_MAX),
     };
     this.applyAll();
   }
@@ -106,6 +110,9 @@ export class Parameters {
         break;
       case 'edgeWidth':
         polytopes.edgeStyle.widthPx = value;
+        break;
+      case 'trails':
+        pipeline.trailDamp = value;
         break;
     }
   }

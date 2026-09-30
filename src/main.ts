@@ -2,7 +2,7 @@ import { Color, Scene } from 'three';
 
 import { OrbitalCamera } from './camera/OrbitalCamera';
 import { Projector4D } from './core/Projector4D';
-import { CLEAR_COLOR, EDGE_WIDTH_DEFAULT_PX } from './core/config';
+import { CLEAR_COLOR, EDGE_WIDTH_DEFAULT_PX, TRAIL_DAMP_DEFAULT } from './core/config';
 import { FpsMeter } from './core/FpsMeter';
 import { createRenderer } from './core/renderer';
 import { Rotor4D } from './core/Rotor4D';
@@ -11,6 +11,7 @@ import { Viewport } from './core/Viewport';
 import { loadGraphs } from './geometry/loadGraphs';
 import { PolytopeManager } from './geometry/PolytopeManager';
 import { EFFECT_KINDS, type EffectKind } from './post/DeformEffect';
+import { EdgeParticles } from './particles/EdgeParticles';
 import { Pipeline } from './post/Pipeline';
 import { createBindings } from './ui/createBindings';
 import { Keybinds } from './ui/Keybinds';
@@ -87,15 +88,31 @@ async function bootstrap(): Promise<void> {
   if (params.has('d')) parameters.jumpTo('distance', sliderFromDistance(projector.distance));
   if (params.has('scale')) parameters.jumpTo('scale', polytopes.scale.x);
   if (params.has('bloom')) parameters.jumpTo('bloomStrength', pipeline.bloomStrength);
+  if (params.has('trails'))
+    parameters.jumpTo('trails', readNumber(params, 'trails') ?? TRAIL_DAMP_DEFAULT);
   if (params.has('edge'))
     parameters.jumpTo('edgeWidth', readNumber(params, 'edge') ?? EDGE_WIDTH_DEFAULT_PX);
   polytopes.facesVisible = params.has('faces');
+  const particles =
+    backend === 'webgpu' && params.get('particles') !== '0'
+      ? new EdgeParticles({ projector, maxEdges: polytopes.maxEdgeCount })
+      : null;
+  if (particles) {
+    scene.add(particles);
+    polytopes.onChange((_slug, polytope) => {
+      particles.setGraph(polytope.graph);
+    });
+    const current = polytopes.currentMesh;
+    if (current) particles.setGraph(current.graph);
+  }
+  document.documentElement.dataset.particles = String(particles !== null);
   const panel = new LazyControlPanel(
     parameters,
     document.body,
-    { faces: polytopes.facesVisible },
-    (_key, value) => {
-      polytopes.facesVisible = value;
+    { faces: polytopes.facesVisible, particles: particles !== null },
+    (key, value) => {
+      if (key === 'faces') polytopes.facesVisible = value;
+      if (key === 'particles' && particles) particles.visible = value;
     },
   );
   if (params.has('panel')) panel.visible = true;
@@ -118,6 +135,7 @@ async function bootstrap(): Promise<void> {
     parameters.update(dt);
     rotor.update(dt);
     orbit.update(dt);
+    particles?.update(renderer, dt);
     pipeline.update(dt);
     pipeline.render();
     fpsMeter.tick(dt);

@@ -1,13 +1,23 @@
+import { afterImage } from 'three/addons/tsl/display/AfterImageNode.js';
 import { bloom } from 'three/addons/tsl/display/BloomNode.js';
 import { fxaa } from 'three/addons/tsl/display/FXAANode.js';
-import { convertToTexture, pass } from 'three/tsl';
-import { RenderPipeline, type Camera, type Scene, type WebGPURenderer } from 'three/webgpu';
+import { convertToTexture, pass, uniform } from 'three/tsl';
+import {
+  RenderPipeline,
+  type Camera,
+  type Node,
+  type Scene,
+  type WebGPURenderer,
+} from 'three/webgpu';
 
 import {
   BLOOM_RADIUS_DEFAULT,
   BLOOM_STRENGTH_DEFAULT,
   BLOOM_THRESHOLD_DEFAULT,
+  TRAIL_DAMP_DEFAULT,
+  TRAIL_DAMP_MAX,
 } from '@/core/config';
+import { clamp } from '@/core/easing';
 
 import { CompositeEffect } from './CompositeEffect';
 import { DeformEffect } from './DeformEffect';
@@ -19,6 +29,7 @@ export interface PipelineOptions {
 export class Pipeline {
   readonly deform = new DeformEffect();
   readonly composite = new CompositeEffect();
+  readonly trailDampNode = uniform(TRAIL_DAMP_DEFAULT);
 
   private readonly post: RenderPipeline;
   private readonly bloomNode;
@@ -30,7 +41,8 @@ export class Pipeline {
     options: PipelineOptions = {},
   ) {
     const scenePass = pass(scene, camera);
-    const color = this.deform.apply(scenePass.getTextureNode('output'));
+    const deformed = this.deform.apply(scenePass.getTextureNode('output'));
+    const color = afterImage(deformed, this.trailDampNode) as unknown as Node<'vec4'>;
 
     this.bloomNode = bloom(
       color,
@@ -42,6 +54,14 @@ export class Pipeline {
     const lit = options.bloomEnabled === false ? color : color.add(this.bloomNode);
     const composed = this.composite.apply(convertToTexture(lit));
     this.post = new RenderPipeline(renderer, fxaa(composed));
+  }
+
+  get trailDamp(): number {
+    return this.trailDampNode.value;
+  }
+
+  set trailDamp(value: number) {
+    this.trailDampNode.value = clamp(value, 0, TRAIL_DAMP_MAX);
   }
 
   get bloomStrength(): number {

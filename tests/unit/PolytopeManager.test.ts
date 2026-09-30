@@ -56,6 +56,20 @@ describe('PolytopeManager', () => {
     }
   });
 
+  test('notifies listeners only when the polytope actually changes', async () => {
+    const manager = createManager();
+    await manager.build();
+    const seen: string[] = [];
+    const off = manager.onChange((slug) => seen.push(slug));
+    manager.show('hypercube');
+    manager.show('hypercube');
+    manager.show('pentatope');
+    off();
+    manager.show('120-cell');
+    expect(seen).toEqual(['hypercube', 'pentatope']);
+    expect(manager.maxEdgeCount).toBeGreaterThan(1000);
+  });
+
   test('rejects an unknown slug', async () => {
     const manager = createManager();
     await manager.build();
