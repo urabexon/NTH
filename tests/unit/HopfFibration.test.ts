@@ -11,7 +11,7 @@ describe('HopfFibration', () => {
       maxFibers: 8,
       samples: 16,
     });
-    expect(hopf.edges.geometry.getAttribute('corner').count).toBe(8 * 16 * 4);
+    expect(hopf.edges.geometry.getAttribute('side').count).toBe(8 * 16 * 4);
     expect(hopf.fiberCount).toBe(0);
     expect(hopf.edges.visible).toBe(false);
   });

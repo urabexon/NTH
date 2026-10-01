@@ -76,6 +76,9 @@ async function bootstrap(): Promise<void> {
   pipeline.composite.aberrationAmount =
     readNumber(params, 'aberration') ?? pipeline.composite.aberrationAmount;
   pipeline.composite.isInverted = params.has('invert');
+  pipeline.composite.vignetteStrength =
+    readNumber(params, 'vignette') ?? pipeline.composite.vignetteStrength;
+  pipeline.composite.grainAmount = readNumber(params, 'grain') ?? pipeline.composite.grainAmount;
 
   await polytopes.build((built, total) => {
     document.documentElement.dataset.progress = String(built / total);

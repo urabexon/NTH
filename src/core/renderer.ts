@@ -1,6 +1,7 @@
+import { ACESFilmicToneMapping } from 'three';
 import { WebGPURenderer } from 'three/webgpu';
 
-import { CLEAR_COLOR, MAX_PIXEL_RATIO } from './config';
+import { CLEAR_COLOR, MAX_PIXEL_RATIO, TONE_MAPPING_EXPOSURE } from './config';
 
 export type BackendName = 'webgpu' | 'webgl2';
 
@@ -27,6 +28,8 @@ export async function createRenderer(
 
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_PIXEL_RATIO));
   renderer.setClearColor(CLEAR_COLOR, 1);
+  renderer.toneMapping = ACESFilmicToneMapping;
+  renderer.toneMappingExposure = TONE_MAPPING_EXPOSURE;
 
   const backend: BackendName = isWebGPUBackend(renderer.backend) ? 'webgpu' : 'webgl2';
   return { renderer, backend };

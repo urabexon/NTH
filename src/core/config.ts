@@ -26,9 +26,9 @@ export const ORBIT_EASING_TIME = 2;
 export const PROJECTION_DISTANCE_DEFAULT = 1.5;
 export const PROJECTION_DISTANCE_MIN = 1.001;
 
-export const BLOOM_STRENGTH_DEFAULT = 0.3;
-export const BLOOM_RADIUS_DEFAULT = 0.25;
-export const BLOOM_THRESHOLD_DEFAULT = 0.5;
+export const BLOOM_STRENGTH_DEFAULT = 0.4;
+export const BLOOM_RADIUS_DEFAULT = 0.35;
+export const BLOOM_THRESHOLD_DEFAULT = 0.7;
 
 export const TURBULENCE_DECAY_TIME = 0.35;
 export const TURBULENCE_SCALE = 0.26;
@@ -58,7 +58,7 @@ export const POLYTOPE_SCALE_MIN = 0.25;
 export const POLYTOPE_SCALE_MAX = 2;
 export const BLOOM_STRENGTH_MAX = 1;
 
-export const EDGE_WIDTH_DEFAULT_PX = 3;
+export const EDGE_WIDTH_DEFAULT_PX = 4;
 export const EDGE_WIDTH_MIN_PX = 0.5;
 export const EDGE_WIDTH_MAX_PX = 8;
 export const EDGE_DEPTH_REFERENCE = 3;
@@ -101,3 +101,16 @@ export const DUST_DRIFT_SPEED = 0.05;
 export const DUST_WIGGLE_AMPLITUDE = 0.04;
 export const DUST_WIGGLE_SCALE = 2.5;
 export const DUST_WIGGLE_SPEED = 0.25;
+
+export const NEON_PALETTE: readonly number[] = [0xff2d95, 0x2de2ff, 0xfff1d6, 0x8a5bff];
+export const NEON_CORE_INNER = 0.1;
+export const NEON_CORE_OUTER = 0.5;
+export const NEON_CORE_WHITENESS = 0.65;
+export const NEON_CORE_BOOST = 1.5;
+export const NEON_HALO_FALLOFF = 1.2;
+export const TONE_MAPPING_EXPOSURE = 1.15;
+export const VIGNETTE_STRENGTH = 0.45;
+export const VIGNETTE_RADIUS = 0.75;
+export const GRAIN_AMOUNT = 0.035;
+export const NEON_REFERENCE_EDGES = 32;
+export const NEON_DENSITY_POWER = 0.35;
