@@ -1,0 +1,28 @@
+{
+  "device": "nanoKONTROL2",
+  "channel": 0,
+  "controls": [
+    { "cc": 0, "type": "parameter", "parameter": "distance" },
+    { "cc": 1, "type": "parameter", "parameter": "rotationSpeed" },
+    { "cc": 2, "type": "parameter", "parameter": "scale" },
+    { "cc": 3, "type": "parameter", "parameter": "edgeWidth" },
+    { "cc": 4, "type": "parameter", "parameter": "bloomStrength" },
+    { "cc": 5, "type": "parameter", "parameter": "trails" },
+    { "cc": 6, "type": "parameter", "parameter": "dust" },
+    { "cc": 7, "type": "parameter", "parameter": "fibers" },
+    { "cc": 16, "type": "parameter", "parameter": "lensRadius" },
+    { "cc": 17, "type": "parameter", "parameter": "motionBlur" },
+    { "cc": 18, "type": "parameter", "parameter": "dof" },
+    { "cc": 32, "type": "key", "code": "KeyA" },
+    { "cc": 33, "type": "key", "code": "KeyS" },
+    { "cc": 34, "type": "key", "code": "KeyR" },
+    { "cc": 35, "type": "key", "code": "KeyT" },
+    { "cc": 48, "type": "key", "code": "KeyQ" },
+    { "cc": 49, "type": "key", "code": "KeyW" },
+    { "cc": 50, "type": "key", "code": "KeyE" },
+    { "cc": 51, "type": "key", "code": "KeyZ" },
+    { "cc": 64, "type": "key", "code": "ShiftLeft" },
+    { "cc": 41, "type": "key", "code": "Space" },
+    { "cc": 46, "type": "key", "code": "KeyH" }
+  ]
+}

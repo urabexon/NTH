@@ -93,6 +93,11 @@ export class Parameters {
     this.values[key].target = target;
   }
 
+  setNormalized(key: ParameterKey, t: number): void {
+    const { min, max } = this.values[key];
+    this.values[key].target = min + (max - min) * Math.min(1, Math.max(0, t));
+  }
+
   jumpTo(key: ParameterKey, value: number): void {
     this.values[key].jumpTo(value);
     this.apply(key);

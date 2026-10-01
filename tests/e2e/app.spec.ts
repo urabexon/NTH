@@ -173,6 +173,49 @@ test.describe('app boot', () => {
     }
   });
 
+  test.describe('midi', () => {
+    test('drives keys and parameters from a fake nanoKONTROL2', async ({ page }) => {
+      await page.addInitScript(() => {
+        const input = { id: '0', name: 'nanoKONTROL2', onmidimessage: null as unknown };
+        const access = { inputs: new Map([['0', input]]), onstatechange: null };
+        Object.defineProperty(navigator, 'requestMIDIAccess', {
+          value: () => Promise.resolve(access),
+        });
+        (window as unknown as { __midiSend: (bytes: number[]) => void }).__midiSend = (bytes) => {
+          (input.onmidimessage as ((e: { data: Uint8Array }) => void) | null)?.({
+            data: new Uint8Array(bytes),
+          });
+        };
+      });
+      await page.goto('/?seed=1&polytope=hypercube');
+      const html = page.locator('html');
+      await expect(html).toHaveAttribute('data-ready', 'true');
+      await expect(html).toHaveAttribute('data-midi', 'connected');
+      await expect(html).toHaveAttribute('data-midi-inputs', 'nanoKONTROL2');
+
+      const send = (bytes: number[]) =>
+        page.evaluate((b) => {
+          (window as unknown as { __midiSend: (bytes: number[]) => void }).__midiSend(b);
+        }, bytes);
+
+      await send([0xb0, 49, 127]);
+      await expect(html).toHaveAttribute('data-effect', 'repeat');
+      await send([0xb0, 49, 0]);
+      await send([0xb0, 41, 127]);
+      await expect(html).not.toHaveAttribute('data-polytope', 'hypercube');
+      await send([0xb0, 0, 127]);
+      await expect(html).toHaveAttribute('data-midi-last', '0:127');
+    });
+
+    test('reports unsupported when Web MIDI is missing', async ({ page }) => {
+      await page.addInitScript(() => {
+        Object.defineProperty(navigator, 'requestMIDIAccess', { value: undefined });
+      });
+      await page.goto('/?seed=1');
+      await expect(page.locator('html')).toHaveAttribute('data-midi', 'unsupported');
+    });
+  });
+
   test.describe('neon look', () => {
     for (const slug of ['hypercube', '24-cell', '120-cell']) {
       test(`${slug} renders the neon look`, async ({ page }, testInfo) => {
