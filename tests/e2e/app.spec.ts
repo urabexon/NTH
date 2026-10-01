@@ -85,7 +85,7 @@ test.describe('app boot', () => {
       await expect(panel).toHaveCount(0);
       await page.keyboard.press('KeyH');
       await expect(panel).toHaveAttribute('data-visible', 'true');
-      await expect(panel.locator('.tp-lblv')).toHaveCount(13);
+      await expect(panel.locator('.tp-lblv')).toHaveCount(16);
       await page.waitForTimeout(300);
       await page.screenshot({ path: testInfo.outputPath('panel.png') });
       await page.keyboard.press('KeyH');
@@ -171,6 +171,34 @@ test.describe('app boot', () => {
         expect(errors).toEqual([]);
       });
     }
+  });
+
+  test.describe('audio', () => {
+    test('test tone drives the level and lowers the projection distance', async ({ page }) => {
+      await page.goto('/?seed=1&polytope=hypercube&audio=test&particles=0&dust=0');
+      const html = page.locator('html');
+      await expect(html).toHaveAttribute('data-ready', 'true');
+      await expect(html).toHaveAttribute('data-audio', 'on');
+      await expect(html).toHaveAttribute('data-audio-level', /^0\.[1-9]|^1/, { timeout: 5000 });
+      await page.keyboard.press('KeyM');
+      await expect(html).toHaveAttribute('data-audio', 'off');
+    });
+
+    test('M requests the microphone and reports denial without errors', async ({ page }) => {
+      const errors: string[] = [];
+      page.on('pageerror', (error) => errors.push(error.message));
+      await page.addInitScript(() => {
+        Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+          value: () => Promise.reject(new Error('NotAllowedError')),
+        });
+      });
+      await page.goto('/?seed=1&particles=0&dust=0');
+      const html = page.locator('html');
+      await expect(html).toHaveAttribute('data-ready', 'true');
+      await page.keyboard.press('KeyM');
+      await expect(html).toHaveAttribute('data-audio', 'denied');
+      expect(errors).toEqual([]);
+    });
   });
 
   test.describe('midi', () => {

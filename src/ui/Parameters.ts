@@ -1,6 +1,9 @@
+import type { AudioReactor } from '@/audio/AudioReactor';
 import type { OrbitalCamera } from '@/camera/OrbitalCamera';
 import {
   BLOOM_STRENGTH_DEFAULT,
+  AUDIO_SENSITIVITY_DEFAULT,
+  AUDIO_SMOOTHING_DEFAULT,
   BLOOM_STRENGTH_MAX,
   DOF_BOKEH_DEFAULT,
   DOF_BOKEH_MAX,
@@ -41,6 +44,7 @@ export interface ParameterTargets {
   readonly orbit: OrbitalCamera;
   readonly hopf: HopfFibration;
   readonly dust: DustParticles | null;
+  readonly audio: AudioReactor;
 }
 
 export const PARAMETER_KEYS = [
@@ -55,6 +59,8 @@ export const PARAMETER_KEYS = [
   'motionBlur',
   'dof',
   'dust',
+  'audioSensitivity',
+  'audioSmoothing',
 ] as const;
 export type ParameterKey = (typeof PARAMETER_KEYS)[number];
 
@@ -72,6 +78,8 @@ export function sliderFromDistance(distance: number): number {
 export class Parameters {
   readonly values: Readonly<Record<ParameterKey, EasedValue>>;
 
+  private readonly offsets: Partial<Record<ParameterKey, number>> = {};
+
   constructor(private readonly targets: ParameterTargets) {
     this.values = {
       distance: new EasedValue(sliderFromDistance(PROJECTION_DISTANCE_DEFAULT), 0, 1),
@@ -85,6 +93,8 @@ export class Parameters {
       motionBlur: new EasedValue(MOTION_BLUR_DEFAULT, 0, MOTION_BLUR_MAX),
       dof: new EasedValue(DOF_BOKEH_DEFAULT, 0, DOF_BOKEH_MAX),
       dust: new EasedValue(DUST_DENSITY_DEFAULT, 0, 1),
+      audioSensitivity: new EasedValue(AUDIO_SENSITIVITY_DEFAULT, 0, 1),
+      audioSmoothing: new EasedValue(AUDIO_SMOOTHING_DEFAULT, 0, 1),
     };
     this.applyAll();
   }
@@ -103,6 +113,12 @@ export class Parameters {
     this.apply(key);
   }
 
+  setOffset(key: ParameterKey, offset: number): void {
+    if ((this.offsets[key] ?? 0) === offset) return;
+    this.offsets[key] = offset;
+    this.apply(key);
+  }
+
   update(dt: number): void {
     for (const key of PARAMETER_KEYS) {
       if (this.values[key].update(dt)) this.apply(key);
@@ -114,8 +130,8 @@ export class Parameters {
   }
 
   private apply(key: ParameterKey): void {
-    const value = this.values[key].value;
-    const { projector, rotor, polytopes, pipeline, hopf, dust } = this.targets;
+    const value = this.values[key].value + (this.offsets[key] ?? 0);
+    const { projector, rotor, polytopes, pipeline, hopf, dust, audio } = this.targets;
     switch (key) {
       case 'distance':
         projector.distance = distanceFromSlider(value);
@@ -149,6 +165,12 @@ export class Parameters {
         break;
       case 'dust':
         if (dust) dust.density = value;
+        break;
+      case 'audioSensitivity':
+        audio.sensitivity = value;
+        break;
+      case 'audioSmoothing':
+        audio.smoothing = value;
         break;
     }
   }

@@ -34,11 +34,14 @@ const SLIDERS: Readonly<Record<ParameterKey, SliderSpec>> = {
   motionBlur: { label: 'motion blur', min: 0, max: MOTION_BLUR_MAX, step: 0.01 },
   dof: { label: 'depth of field', min: 0, max: DOF_BOKEH_MAX, step: 0.01 },
   dust: { label: 'dust', min: 0, max: 1, step: 0.01 },
+  audioSensitivity: { label: 'audio sens.', min: 0, max: 1, step: 0.01 },
+  audioSmoothing: { label: 'audio smooth', min: 0, max: 1, step: 0.01 },
 };
 
 export interface PanelToggles {
   faces: boolean;
   particles: boolean;
+  audio: boolean;
 }
 
 export class ControlPanel {
@@ -74,7 +77,7 @@ export class ControlPanel {
           parameters.set(key, event.value);
         });
     }
-    for (const key of ['faces', 'particles'] as const) {
+    for (const key of ['faces', 'particles', 'audio'] as const) {
       this.pane.addBinding(toggles, key, { label: key }).on('change', (event) => {
         onToggle(key, event.value);
       });

@@ -114,3 +114,13 @@ export const VIGNETTE_RADIUS = 0.75;
 export const GRAIN_AMOUNT = 0.035;
 export const NEON_REFERENCE_EDGES = 32;
 export const NEON_DENSITY_POWER = 0.35;
+
+export const AUDIO_FFT_SIZE = 1024;
+export const AUDIO_LOW_BAND_HZ: readonly [number, number] = [30, 180];
+export const AUDIO_SENSITIVITY_DEFAULT = 0.6;
+export const AUDIO_SMOOTHING_DEFAULT = 0.4;
+export const AUDIO_DISTANCE_SWING = 0.7;
+export const AUDIO_ONSET_THRESHOLD = 0.18;
+export const AUDIO_ONSET_MIN_INTERVAL = 0.35;
+export const AUDIO_ONSET_AVERAGE_TIME = 0.8;
+export const AUDIO_TEST_TONE_HZ = 60;

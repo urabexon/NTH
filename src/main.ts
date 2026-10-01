@@ -1,5 +1,7 @@
 import { Color, Scene, Vector3 } from 'three';
 
+import { AudioInput } from './audio/AudioInput';
+import { AudioReactor } from './audio/AudioReactor';
 import { OrbitalCamera } from './camera/OrbitalCamera';
 import { Projector4D } from './core/Projector4D';
 import {
@@ -105,7 +107,42 @@ async function bootstrap(): Promise<void> {
     backend === 'webgpu' && params.get('dust') !== '0' ? new DustParticles({ projector }) : null;
   if (dust) scene.add(dust);
   document.documentElement.dataset.dust = String(dust !== null);
-  const parameters = new Parameters({ projector, rotor, polytopes, pipeline, orbit, hopf, dust });
+  const audioInput = new AudioInput();
+  const audioReactor = new AudioReactor(audioInput, {
+    onOnset: () => {
+      rotor.reseed();
+      orbit.reseed();
+    },
+    setDistanceOffset: (offset) => {
+      parameters.setOffset('distance', offset);
+    },
+  });
+  const audioSource = params.get('audio') === 'test' ? 'test-tone' : 'microphone';
+  const audio = {
+    get enabled() {
+      return audioInput.status === 'on' || audioInput.status === 'requesting';
+    },
+    set enabled(value: boolean) {
+      if (value) void audioInput.start(audioSource);
+      else {
+        audioInput.stop();
+        audioReactor.reset();
+      }
+    },
+  };
+  audioInput.onStatus((status) => {
+    document.documentElement.dataset.audio = status;
+  });
+  const parameters = new Parameters({
+    projector,
+    rotor,
+    polytopes,
+    pipeline,
+    orbit,
+    hopf,
+    dust,
+    audio: audioReactor,
+  });
   if (params.has('dust') && dust)
     parameters.jumpTo('dust', readNumber(params, 'dust') ?? DUST_DENSITY_DEFAULT);
   if (params.has('fibers')) parameters.jumpTo('fibers', readNumber(params, 'fibers') ?? 0);
@@ -135,22 +172,23 @@ async function bootstrap(): Promise<void> {
     if (current) particles.setGraph(current.graph);
   }
   document.documentElement.dataset.particles = String(particles !== null);
-  const panel = new LazyControlPanel(
-    parameters,
-    document.body,
-    { faces: polytopes.facesVisible, particles: particles !== null },
-    (key, value) => {
-      if (key === 'faces') polytopes.facesVisible = value;
-      if (key === 'particles' && particles) particles.visible = value;
-    },
-  );
+  const toggles = { faces: polytopes.facesVisible, particles: particles !== null, audio: false };
+  const panel = new LazyControlPanel(parameters, document.body, toggles, (key, value) => {
+    if (key === 'faces') polytopes.facesVisible = value;
+    if (key === 'particles' && particles) particles.visible = value;
+    if (key === 'audio') audio.enabled = value;
+  });
   if (params.has('panel')) panel.visible = true;
 
   const keybinds = new Keybinds(
-    createBindings({ polytopes, rotor, orbit, pipeline, panel, random: Math.random }),
+    createBindings({ polytopes, rotor, orbit, pipeline, panel, audio, random: Math.random }),
     window,
   );
   const legend = new KeyLegend(keybinds, document.body);
+  if (params.has('audio')) {
+    keybinds.press('KeyM');
+    toggles.audio = true;
+  }
 
   const midi = new MidiInput();
   const midiController = new MidiController(
@@ -179,6 +217,10 @@ async function bootstrap(): Promise<void> {
   });
 
   const ticker = new Ticker((dt) => {
+    if (audioInput.status === 'on') {
+      audioReactor.update(dt);
+      document.documentElement.dataset.audioLevel = audioReactor.currentLevel.toFixed(2);
+    }
     parameters.update(dt);
     rotor.update(dt);
     orbit.update(dt);
@@ -198,6 +240,7 @@ async function bootstrap(): Promise<void> {
     keybinds.dispose();
     legend.dispose();
     midi.dispose();
+    audioInput.dispose();
     panel.dispose();
     hopf.dispose();
     viewport.dispose();
