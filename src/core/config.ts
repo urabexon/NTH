@@ -91,3 +91,13 @@ export const MOTION_MAX_STREAK_NDC = 0.025;
 export const GLASS_OPACITY = 0.055;
 export const GLASS_REFERENCE_TRIANGLES = 48;
 export const GLASS_DENSITY_POWER = 0.6;
+
+export const DUST_COUNT = 6000;
+export const DUST_DENSITY_DEFAULT = 0.5;
+export const DUST_SIZE = 0.012;
+export const DUST_OPACITY = 0.35;
+export const DUST_COLOR = 0xbfd8ff;
+export const DUST_DRIFT_SPEED = 0.05;
+export const DUST_WIGGLE_AMPLITUDE = 0.04;
+export const DUST_WIGGLE_SCALE = 2.5;
+export const DUST_WIGGLE_SPEED = 0.25;

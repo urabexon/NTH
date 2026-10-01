@@ -4,6 +4,7 @@ import {
   BLOOM_STRENGTH_MAX,
   DOF_BOKEH_DEFAULT,
   DOF_BOKEH_MAX,
+  DUST_DENSITY_DEFAULT,
   MOTION_BLUR_DEFAULT,
   MOTION_BLUR_MAX,
   EDGE_WIDTH_DEFAULT_PX,
@@ -26,6 +27,7 @@ import {
 import type { Projector4D } from '@/core/Projector4D';
 import type { Rotor4D } from '@/core/Rotor4D';
 import type { HopfFibration } from '@/geometry/HopfFibration';
+import type { DustParticles } from '@/particles/DustParticles';
 import type { PolytopeManager } from '@/geometry/PolytopeManager';
 import type { Pipeline } from '@/post/Pipeline';
 
@@ -38,6 +40,7 @@ export interface ParameterTargets {
   readonly pipeline: Pipeline;
   readonly orbit: OrbitalCamera;
   readonly hopf: HopfFibration;
+  readonly dust: DustParticles | null;
 }
 
 export const PARAMETER_KEYS = [
@@ -51,6 +54,7 @@ export const PARAMETER_KEYS = [
   'fibers',
   'motionBlur',
   'dof',
+  'dust',
 ] as const;
 export type ParameterKey = (typeof PARAMETER_KEYS)[number];
 
@@ -80,6 +84,7 @@ export class Parameters {
       fibers: new EasedValue(HOPF_FIBERS_DEFAULT, 0, HOPF_MAX_FIBERS),
       motionBlur: new EasedValue(MOTION_BLUR_DEFAULT, 0, MOTION_BLUR_MAX),
       dof: new EasedValue(DOF_BOKEH_DEFAULT, 0, DOF_BOKEH_MAX),
+      dust: new EasedValue(DUST_DENSITY_DEFAULT, 0, 1),
     };
     this.applyAll();
   }
@@ -105,7 +110,7 @@ export class Parameters {
 
   private apply(key: ParameterKey): void {
     const value = this.values[key].value;
-    const { projector, rotor, polytopes, pipeline, hopf } = this.targets;
+    const { projector, rotor, polytopes, pipeline, hopf, dust } = this.targets;
     switch (key) {
       case 'distance':
         projector.distance = distanceFromSlider(value);
@@ -136,6 +141,9 @@ export class Parameters {
         break;
       case 'dof':
         pipeline.bokeh = value;
+        break;
+      case 'dust':
+        if (dust) dust.density = value;
         break;
     }
   }
