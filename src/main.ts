@@ -2,7 +2,12 @@ import { Color, Scene, Vector3 } from 'three';
 
 import { OrbitalCamera } from './camera/OrbitalCamera';
 import { Projector4D } from './core/Projector4D';
-import { CLEAR_COLOR, EDGE_WIDTH_DEFAULT_PX, TRAIL_DAMP_DEFAULT } from './core/config';
+import {
+  CLEAR_COLOR,
+  DUST_DENSITY_DEFAULT,
+  EDGE_WIDTH_DEFAULT_PX,
+  TRAIL_DAMP_DEFAULT,
+} from './core/config';
 import { FpsMeter } from './core/FpsMeter';
 import { captureMotion } from './core/motion';
 import { createRenderer } from './core/renderer';
@@ -13,6 +18,7 @@ import { loadGraphs } from './geometry/loadGraphs';
 import { HopfFibration } from './geometry/HopfFibration';
 import { PolytopeManager } from './geometry/PolytopeManager';
 import { EFFECT_KINDS, type EffectKind } from './post/DeformEffect';
+import { DustParticles } from './particles/DustParticles';
 import { EdgeParticles } from './particles/EdgeParticles';
 import { Pipeline } from './post/Pipeline';
 import { createBindings } from './ui/createBindings';
@@ -88,7 +94,13 @@ async function bootstrap(): Promise<void> {
 
   const hopf = new HopfFibration({ projector });
   scene.add(hopf);
-  const parameters = new Parameters({ projector, rotor, polytopes, pipeline, orbit, hopf });
+  const dust =
+    backend === 'webgpu' && params.get('dust') !== '0' ? new DustParticles({ projector }) : null;
+  if (dust) scene.add(dust);
+  document.documentElement.dataset.dust = String(dust !== null);
+  const parameters = new Parameters({ projector, rotor, polytopes, pipeline, orbit, hopf, dust });
+  if (params.has('dust') && dust)
+    parameters.jumpTo('dust', readNumber(params, 'dust') ?? DUST_DENSITY_DEFAULT);
   if (params.has('fibers')) parameters.jumpTo('fibers', readNumber(params, 'fibers') ?? 0);
   if (params.has('motionBlur'))
     parameters.jumpTo('motionBlur', readNumber(params, 'motionBlur') ?? 0);
@@ -147,6 +159,7 @@ async function bootstrap(): Promise<void> {
     rotor.update(dt);
     orbit.update(dt);
     particles?.update(renderer, dt);
+    dust?.update(renderer, dt);
     pipeline.update(dt);
     orbit.updateMatrixWorld(true);
     pipeline.focusDistance = orbit.camera.getWorldPosition(focusProbe).length();

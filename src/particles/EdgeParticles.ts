@@ -1,4 +1,4 @@
-import { AdditiveBlending, Color, Vector4 } from 'three';
+import { Vector4 } from 'three';
 import {
   floor,
   Fn,
@@ -7,16 +7,11 @@ import {
   If,
   instancedArray,
   instanceIndex,
-  length,
   mix,
-  mrt,
-  output,
-  smoothstep,
   uniform,
-  uv,
   vec4,
 } from 'three/tsl';
-import { Sprite, SpriteNodeMaterial, type ComputeNode, type WebGPURenderer } from 'three/webgpu';
+import { Sprite, type ComputeNode, type WebGPURenderer } from 'three/webgpu';
 
 import {
   PARTICLE_COLOR,
@@ -26,11 +21,10 @@ import {
   PARTICLE_SPEED_MAX,
   PARTICLE_SPEED_MIN,
 } from '@/core/config';
-import { previousDistanceNode, previousMatrix4dNode } from '@/core/motion';
 import type { Projector4D } from '@/core/Projector4D';
-import { clipNow, clipPrevious, screenVelocity } from '@/shaders/screenVelocity';
 import type { Graph } from '@/geometry/Graph';
-import { projectPoint4D } from '@/shaders/stereographicProjection';
+
+import { createSpriteParticleMaterial } from './spriteParticleMaterial';
 
 export interface EdgeParticlesOptions {
   readonly projector: Projector4D;
@@ -55,12 +49,7 @@ export class EdgeParticles extends Sprite {
   private needsInit = true;
 
   constructor(options: EdgeParticlesOptions) {
-    const material = new SpriteNodeMaterial({
-      transparent: true,
-      depthWrite: false,
-      blending: AdditiveBlending,
-    });
-    super(material);
+    super();
 
     this.particleCount = options.count ?? PARTICLE_COUNT;
     this.maxEdges = Math.max(1, options.maxEdges);
@@ -71,7 +60,7 @@ export class EdgeParticles extends Sprite {
     this.edgeB = instancedArray(this.maxEdges, 'vec4');
     this.state = instancedArray(this.particleCount, 'vec4');
 
-    const { edgeA, edgeB, state, edgeCount, dt, frame, size } = this;
+    const { edgeA, edgeB, state, edgeCount, dt, frame } = this;
 
     this.computeInit = Fn(() => {
       const seed = instanceIndex.toFloat();
@@ -95,21 +84,14 @@ export class EdgeParticles extends Sprite {
 
     const particle = state.element(instanceIndex);
     const edgeIndex = particle.x.toUint();
-    const point = mix(edgeA.element(edgeIndex), edgeB.element(edgeIndex), particle.y);
-    const projected = projectPoint4D(
-      point,
-      options.projector.matrixNode,
-      options.projector.distanceNode,
-    );
-    const projectedPrevious = projectPoint4D(point, previousMatrix4dNode, previousDistanceNode);
-    material.positionNode = projected;
-    material.mrtNode = mrt({
-      output,
-      velocity: screenVelocity(clipNow(projected), clipPrevious(projectedPrevious)),
+    const point4d = mix(edgeA.element(edgeIndex), edgeB.element(edgeIndex), particle.y);
+    this.material = createSpriteParticleMaterial({
+      projector: options.projector,
+      point4d,
+      size: this.size,
+      color: options.color ?? PARTICLE_COLOR,
+      opacity: PARTICLE_OPACITY,
     });
-    material.scaleNode = size;
-    material.colorNode = uniform(new Color(options.color ?? PARTICLE_COLOR));
-    material.opacityNode = smoothstep(0.5, 0.1, length(uv().sub(0.5))).mul(PARTICLE_OPACITY);
   }
 
   get sizeWorld(): number {
@@ -163,6 +145,6 @@ export class EdgeParticles extends Sprite {
   }
 
   override dispose(): void {
-    (this.material as SpriteNodeMaterial).dispose();
+    (this.material as { dispose(): void }).dispose();
   }
 }

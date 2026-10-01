@@ -85,7 +85,7 @@ test.describe('app boot', () => {
       await expect(panel).toHaveCount(0);
       await page.keyboard.press('KeyH');
       await expect(panel).toHaveAttribute('data-visible', 'true');
-      await expect(panel.locator('.tp-lblv')).toHaveCount(12);
+      await expect(panel.locator('.tp-lblv')).toHaveCount(13);
       await page.waitForTimeout(300);
       await page.screenshot({ path: testInfo.outputPath('panel.png') });
       await page.keyboard.press('KeyH');
@@ -168,6 +168,29 @@ test.describe('app boot', () => {
         await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
         await page.waitForTimeout(400);
         await page.screenshot({ path: testInfo.outputPath(`hopf-${name}.png`) });
+        expect(errors).toEqual([]);
+      });
+    }
+  });
+
+  test.describe('dust', () => {
+    for (const [name, query] of Object.entries({
+      default: 'particles=0&trails=0',
+      dense: 'dust=1&particles=0&trails=0',
+      off: 'dust=0&particles=0&trails=0',
+    })) {
+      test(`${name} renders without errors`, async ({ page }, testInfo) => {
+        const errors: string[] = [];
+        page.on('pageerror', (error) => errors.push(error.message));
+        page.on('console', (message) => {
+          if (message.type() === 'error') errors.push(message.text());
+        });
+        await page.goto(`/?seed=1&polytope=hypercube&${query}`);
+        const html = page.locator('html');
+        await expect(html).toHaveAttribute('data-ready', 'true');
+        await expect(html).toHaveAttribute('data-dust', name === 'off' ? 'false' : 'true');
+        await page.waitForTimeout(1200);
+        await page.screenshot({ path: testInfo.outputPath(`dust-${name}.png`) });
         expect(errors).toEqual([]);
       });
     }
@@ -270,6 +293,7 @@ test.describe('app boot', () => {
     await expect(html).toHaveAttribute('data-backend', 'webgl2');
     await expect(html).toHaveAttribute('data-ready', 'true');
     await expect(html).toHaveAttribute('data-particles', 'false');
+    await expect(html).toHaveAttribute('data-dust', 'false');
     await page.waitForTimeout(500);
     expect(errors).toEqual([]);
   });

@@ -31,6 +31,7 @@ function stubTargets() {
     },
     orbit: {},
     hopf: { fiberCount: 0 },
+    dust: { density: 0 },
   };
   return targets;
 }
@@ -79,6 +80,7 @@ describe('Parameters', () => {
     expect(targets.pipeline.trailDamp).toBeCloseTo(0.5, 6);
     expect(targets.pipeline.motionBlur).toBeCloseTo(0.6, 6);
     expect(targets.pipeline.bokeh).toBe(1.5);
+    expect(targets.dust.density).toBe(0.5);
   });
 
   test('set() eases the target value over time', () => {

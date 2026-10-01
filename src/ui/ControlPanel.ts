@@ -33,6 +33,7 @@ const SLIDERS: Readonly<Record<ParameterKey, SliderSpec>> = {
   fibers: { label: 'fibers', min: 0, max: HOPF_MAX_FIBERS, step: 1 },
   motionBlur: { label: 'motion blur', min: 0, max: MOTION_BLUR_MAX, step: 0.01 },
   dof: { label: 'depth of field', min: 0, max: DOF_BOKEH_MAX, step: 0.01 },
+  dust: { label: 'dust', min: 0, max: 1, step: 0.01 },
 };
 
 export interface PanelToggles {
