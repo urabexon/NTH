@@ -32,6 +32,7 @@ function stubTargets() {
     orbit: {},
     hopf: { fiberCount: 0 },
     dust: { density: 0 },
+    audio: { sensitivity: 0, smoothing: 0 },
   };
   return targets;
 }
@@ -103,6 +104,17 @@ describe('Parameters', () => {
     expect(parameters.values.scale.target).toBe(0.25);
     parameters.setNormalized('lensRadius', 0.5);
     expect(parameters.values.lensRadius.target).toBe(500);
+  });
+
+  test('setOffset() adds to the applied value without moving the slider', () => {
+    const targets = stubTargets();
+    const parameters = new Parameters(targets as unknown as ParameterTargets);
+    const before = targets.projector.distance;
+    parameters.setOffset('distance', -0.2);
+    expect(parameters.values.distance.target).toBe(parameters.values.distance.value);
+    expect(targets.projector.distance).toBeLessThan(before);
+    parameters.setOffset('distance', 0);
+    expect(targets.projector.distance).toBeCloseTo(before, 9);
   });
 
   test('jumpTo() applies immediately', () => {

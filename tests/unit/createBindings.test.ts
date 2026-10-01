@@ -18,6 +18,7 @@ function stubTargets(random = () => 0.1) {
     orbit: { reseed: vi.fn(), isMagnified: false, dollyDistance: 0 },
     pipeline: { deform, composite },
     panel: { visible: false },
+    audio: { enabled: false },
     random,
   };
   return { targets, deform, composite };
@@ -48,6 +49,7 @@ describe('createBindings', () => {
       'E',
       'Z',
       'H',
+      'M',
       'Shift',
     ]);
   });
@@ -108,6 +110,14 @@ describe('createBindings', () => {
     expect(targets.panel.visible).toBe(true);
     press('KeyH');
     expect(targets.panel.visible).toBe(false);
+  });
+
+  test('M toggles audio', () => {
+    const { targets, press } = attach();
+    press('KeyM');
+    expect(targets.audio.enabled).toBe(true);
+    press('KeyM');
+    expect(targets.audio.enabled).toBe(false);
   });
 
   test('Shift dollies out while held and back on release', () => {

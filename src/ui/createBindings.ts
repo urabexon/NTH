@@ -10,17 +10,22 @@ export interface PanelLike {
   visible: boolean;
 }
 
+export interface AudioLike {
+  enabled: boolean;
+}
+
 export interface BindingTargets {
   readonly polytopes: PolytopeManager;
   readonly rotor: Rotor4D;
   readonly orbit: OrbitalCamera;
   readonly pipeline: Pipeline;
   readonly panel: PanelLike;
+  readonly audio: AudioLike;
   readonly random: () => number;
 }
 
 export function createBindings(targets: BindingTargets): Binding[] {
-  const { polytopes, rotor, orbit, pipeline, panel, random } = targets;
+  const { polytopes, rotor, orbit, pipeline, panel, audio, random } = targets;
   const { deform, composite } = pipeline;
   let mirrorSide: 'mirror-left' | 'mirror-right' = random() < 0.5 ? 'mirror-left' : 'mirror-right';
 
@@ -118,6 +123,15 @@ export function createBindings(targets: BindingTargets): Binding[] {
       mode: 'toggle',
       onPress: (active) => {
         panel.visible = active;
+      },
+    },
+    {
+      code: 'KeyM',
+      key: 'M',
+      label: 'Mic',
+      mode: 'toggle',
+      onPress: (active) => {
+        audio.enabled = active;
       },
     },
     {
