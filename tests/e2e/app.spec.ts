@@ -173,6 +173,20 @@ test.describe('app boot', () => {
     }
   });
 
+  test.describe('neon look', () => {
+    for (const slug of ['hypercube', '24-cell', '120-cell']) {
+      test(`${slug} renders the neon look`, async ({ page }, testInfo) => {
+        const errors: string[] = [];
+        page.on('pageerror', (error) => errors.push(error.message));
+        await page.goto(`/?seed=1&polytope=${slug}`);
+        await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+        await page.waitForTimeout(800);
+        await page.screenshot({ path: testInfo.outputPath(`neon-${slug}.png`) });
+        expect(errors).toEqual([]);
+      });
+    }
+  });
+
   test.describe('dust', () => {
     for (const [name, query] of Object.entries({
       default: 'particles=0&trails=0',
@@ -237,7 +251,8 @@ test.describe('app boot', () => {
       await page.goto('/?seed=1&polytope=120-cell');
       const html = page.locator('html');
       await expect(html).toHaveAttribute('data-ready', 'true');
-      await page.waitForTimeout(2500);
+      await expect(html).toHaveAttribute('data-fps', /\d+/, { timeout: 10_000 });
+      await page.waitForTimeout(2000);
       const fps = Number(await html.getAttribute('data-fps'));
       console.info(`[e2e] 120-cell fps: ${String(fps)}`);
       expect(fps).toBeGreaterThanOrEqual(50);

@@ -3,10 +3,10 @@ import {
   cameraProjectionMatrix,
   clamp,
   Fn,
-  mix,
   modelViewMatrix,
   normalize,
   screenSize,
+  varying,
   vec2,
   vec4,
 } from 'three/tsl';
@@ -28,59 +28,47 @@ export interface ThickEdgeInputs {
 export interface ThickEdgeNodes {
   readonly vertex: Node<'vec4'>;
   readonly velocity: Node<'vec2'>;
+  readonly across: Node<'float'>;
 }
 
 export function thickEdgeVertex({ matrix4d, distance, widthPx }: ThickEdgeInputs): ThickEdgeNodes {
-  const positionA = attribute('positionA', 'vec3');
-  const positionAW = attribute('positionAW', 'float');
-  const positionB = attribute('positionB', 'vec3');
-  const positionBW = attribute('positionBW', 'float');
-  const corner = attribute('corner', 'vec2');
-  const end = corner.x;
+  const prev4 = vec4(attribute('positionPrev', 'vec3'), attribute('positionPrevW', 'float'));
+  const curr4 = vec4(attribute('positionCurr', 'vec3'), attribute('positionCurrW', 'float'));
+  const next4 = vec4(attribute('positionNext', 'vec3'), attribute('positionNextW', 'float'));
+  const side = attribute('side', 'float');
 
-  const centerNow = mix(
-    projectPoint4D(vec4(positionA, positionAW), matrix4d, distance),
-    projectPoint4D(vec4(positionB, positionBW), matrix4d, distance),
-    end,
-  );
-  const centerPrevious = mix(
-    projectPoint4D(vec4(positionA, positionAW), previousMatrix4dNode, previousDistanceNode),
-    projectPoint4D(vec4(positionB, positionBW), previousMatrix4dNode, previousDistanceNode),
-    end,
-  );
+  const currentNow = projectPoint4D(curr4, matrix4d, distance);
+  const currentPrevious = projectPoint4D(curr4, previousMatrix4dNode, previousDistanceNode);
   const velocity = screenVelocity(
-    cameraProjectionMatrix.mul(modelViewMatrix.mul(vec4(centerNow, 1))),
-    clipPrevious(centerPrevious),
+    cameraProjectionMatrix.mul(modelViewMatrix.mul(vec4(currentNow, 1))),
+    clipPrevious(currentPrevious),
   );
 
   const vertex = Fn(() => {
-    const projectedA = projectPoint4D(vec4(positionA, positionAW), matrix4d, distance);
-    const projectedB = projectPoint4D(vec4(positionB, positionBW), matrix4d, distance);
-
-    const clipA = cameraProjectionMatrix.mul(modelViewMatrix.mul(vec4(projectedA, 1)));
-    const clipB = cameraProjectionMatrix.mul(modelViewMatrix.mul(vec4(projectedB, 1)));
-
-    const side = corner.y;
-    const clip = mix(clipA, clipB, end);
+    const toClip = (point: Node<'vec3'>) =>
+      cameraProjectionMatrix.mul(modelViewMatrix.mul(vec4(point, 1)));
+    const clipPrev = toClip(projectPoint4D(prev4, matrix4d, distance));
+    const clipCurr = toClip(currentNow);
+    const clipNext = toClip(projectPoint4D(next4, matrix4d, distance));
 
     const aspect = screenSize.x.div(screenSize.y);
-    const ndcA = clipA.xy.div(clipA.w).mul(vec2(aspect, 1));
-    const ndcB = clipB.xy.div(clipB.w).mul(vec2(aspect, 1));
-    const direction = normalize(ndcB.sub(ndcA));
+    const ndcPrev = clipPrev.xy.div(clipPrev.w).mul(vec2(aspect, 1));
+    const ndcNext = clipNext.xy.div(clipNext.w).mul(vec2(aspect, 1));
+    const direction = normalize(ndcNext.sub(ndcPrev));
     const normal = vec2(direction.y.negate(), direction.x);
 
     const depthScale = clamp(
-      clip.w.reciprocal().mul(EDGE_DEPTH_REFERENCE),
+      clipCurr.w.reciprocal().mul(EDGE_DEPTH_REFERENCE),
       EDGE_DEPTH_SCALE_MIN,
       EDGE_DEPTH_SCALE_MAX,
     );
     const halfWidthNdc = widthPx.mul(pixelRatioNode).mul(depthScale).div(screenSize.y);
+    const offset = normal.mul(halfWidthNdc).mul(side).div(vec2(aspect, 1));
 
-    const extension = direction.mul(halfWidthNdc).mul(end.mul(2).sub(1));
-    const offset = normal.mul(halfWidthNdc).mul(side).add(extension).div(vec2(aspect, 1));
-
-    return vec4(clip.xy.add(offset.mul(clip.w)), clip.zw);
+    return vec4(clipCurr.xy.add(offset.mul(clipCurr.w)), clipCurr.zw);
   })();
 
-  return { vertex, velocity };
+  const across = varying(side, 'edgeAcross').setInterpolation('linear');
+
+  return { vertex, velocity, across };
 }

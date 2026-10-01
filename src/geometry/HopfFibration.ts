@@ -55,7 +55,7 @@ export class HopfFibration extends Group {
 
     this.edges = new PolytopeEdges(
       { name: this.name, vertices, edges },
-      { projector: options.projector, style: this.style, colors, subdivision: 1 },
+      { projector: options.projector, style: this.style, colors, subdivision: 1, intensity: 0.8 },
     );
     this.add(this.edges);
     this.fiberCount = this.shown;
@@ -67,7 +67,7 @@ export class HopfFibration extends Group {
 
   set fiberCount(value: number) {
     this.shown = Math.round(clamp(value, 0, this.maxFibers));
-    const samples = this.edges.geometry.getAttribute('corner').count / (this.maxFibers * 4);
+    const samples = this.edges.geometry.getAttribute('side').count / (this.maxFibers * 4);
     this.edges.geometry.setDrawRange(0, this.shown * samples * INDICES_PER_SEGMENT);
     this.edges.visible = this.shown > 0;
   }

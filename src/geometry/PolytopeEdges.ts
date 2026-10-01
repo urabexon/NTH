@@ -1,11 +1,19 @@
-import { BufferAttribute, BufferGeometry, Mesh, NormalBlending } from 'three';
+import {
+  BufferAttribute,
+  BufferGeometry,
+  CustomBlending,
+  MaxEquation,
+  Mesh,
+  OneFactor,
+} from 'three';
 import { attribute, mrt, output } from 'three/tsl';
 import { MeshBasicNodeMaterial } from 'three/webgpu';
 
 import type { Projector4D } from '@/core/Projector4D';
+import { neonEdge, neonIntensityFor } from '@/shaders/neonEdge';
 import { thickEdgeVertex } from '@/shaders/thickEdge';
 
-import { buildEdgeSegments } from './edgeSegments';
+import { buildEdgeStrips } from './edgeStrips';
 import type { EdgeStyle } from './EdgeStyle';
 import type { Edge } from './Graph';
 import type { Vec4 } from './schema';
@@ -22,11 +30,12 @@ export interface PolytopeEdgesOptions {
   readonly style: EdgeStyle;
   readonly colors: readonly Rgb[];
   readonly subdivision: number;
+  readonly intensity?: number;
 }
 
 export class PolytopeEdges extends Mesh<BufferGeometry, MeshBasicNodeMaterial> {
   constructor(graph: EdgeSource, options: PolytopeEdgesOptions) {
-    const segments = buildEdgeSegments(
+    const strips = buildEdgeStrips(
       graph.vertices,
       options.colors,
       graph.edges,
@@ -34,19 +43,25 @@ export class PolytopeEdges extends Mesh<BufferGeometry, MeshBasicNodeMaterial> {
     );
 
     const geometry = new BufferGeometry();
-    geometry.setAttribute('position', new BufferAttribute(segments.positionA, 3));
-    geometry.setAttribute('positionA', new BufferAttribute(segments.positionA, 3));
-    geometry.setAttribute('positionAW', new BufferAttribute(segments.positionAW, 1));
-    geometry.setAttribute('positionB', new BufferAttribute(segments.positionB, 3));
-    geometry.setAttribute('positionBW', new BufferAttribute(segments.positionBW, 1));
-    geometry.setAttribute('corner', new BufferAttribute(segments.corner, 2));
-    geometry.setAttribute('color', new BufferAttribute(segments.color, 3));
-    geometry.setIndex(new BufferAttribute(segments.index, 1));
+    geometry.setAttribute('position', new BufferAttribute(strips.positionCurr, 3));
+    geometry.setAttribute('positionPrev', new BufferAttribute(strips.positionPrev, 3));
+    geometry.setAttribute('positionPrevW', new BufferAttribute(strips.positionPrevW, 1));
+    geometry.setAttribute('positionCurr', new BufferAttribute(strips.positionCurr, 3));
+    geometry.setAttribute('positionCurrW', new BufferAttribute(strips.positionCurrW, 1));
+    geometry.setAttribute('positionNext', new BufferAttribute(strips.positionNext, 3));
+    geometry.setAttribute('positionNextW', new BufferAttribute(strips.positionNextW, 1));
+    geometry.setAttribute('side', new BufferAttribute(strips.side, 1));
+    geometry.setAttribute('color', new BufferAttribute(strips.color, 3));
+    geometry.setIndex(new BufferAttribute(strips.index, 1));
 
     const material = new MeshBasicNodeMaterial({
       transparent: true,
       depthWrite: true,
-      blending: NormalBlending,
+      depthTest: false,
+      blending: CustomBlending,
+      blendEquation: MaxEquation,
+      blendSrc: OneFactor,
+      blendDst: OneFactor,
     });
     const nodes = thickEdgeVertex({
       matrix4d: options.projector.matrixNode,
@@ -55,7 +70,12 @@ export class PolytopeEdges extends Mesh<BufferGeometry, MeshBasicNodeMaterial> {
     });
     material.vertexNode = nodes.vertex;
     material.mrtNode = mrt({ output, velocity: nodes.velocity });
-    material.colorNode = attribute('color', 'vec3');
+    const neon = neonEdge(
+      attribute('color', 'vec3'),
+      nodes.across,
+      options.intensity ?? neonIntensityFor(graph.edges.length),
+    );
+    material.colorNode = neon.color.mul(neon.opacity);
 
     super(geometry, material);
     this.frustumCulled = false;

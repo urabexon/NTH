@@ -1,8 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { Color } from 'three';
 import { describe, expect, test } from 'vitest';
 
+import { NEON_PALETTE } from '@/core/config';
 import type { Triangle } from '@/geometry/Graph';
 import { parseGraphs } from '@/geometry/loadGraphs';
 import type { Vec4 } from '@/geometry/schema';
@@ -100,17 +102,13 @@ describe('subdivide', () => {
 });
 
 describe('generateVertexColors', () => {
-  test('is deterministic for a seed and within the palette ranges', () => {
+  test('is deterministic for a seed and only uses palette colors', () => {
     const a = generateVertexColors(10, 42);
     const b = generateVertexColors(10, 42);
     expect(a).toEqual(b);
+    const palette = new Set(NEON_PALETTE.map((hex) => new Color(hex).getHexString()));
     for (const [r, g, bl] of a) {
-      expect(r).toBeGreaterThanOrEqual(0.25);
-      expect(r).toBeLessThanOrEqual(1);
-      expect(g).toBeGreaterThanOrEqual(0.2);
-      expect(g).toBeLessThanOrEqual(0.7);
-      expect(bl).toBeGreaterThanOrEqual(0.5);
-      expect(bl).toBeLessThanOrEqual(0.8);
+      expect(palette.has(new Color(r, g, bl).getHexString())).toBe(true);
     }
   });
 

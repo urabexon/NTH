@@ -75,8 +75,8 @@ describe('Parameters', () => {
     expect(targets.rotor.speedMultiplier).toBeCloseTo(1, 6);
     expect(targets.polytopes.scale.x).toBe(1);
     expect(targets.pipeline.deform.lensRadiusPx).toBe(400);
-    expect(targets.pipeline.bloomStrength).toBeCloseTo(0.3, 6);
-    expect(targets.polytopes.edgeStyle.widthPx).toBe(3);
+    expect(targets.pipeline.bloomStrength).toBeCloseTo(0.4, 6);
+    expect(targets.polytopes.edgeStyle.widthPx).toBe(4);
     expect(targets.pipeline.trailDamp).toBeCloseTo(0.5, 6);
     expect(targets.pipeline.motionBlur).toBeCloseTo(0.6, 6);
     expect(targets.pipeline.bokeh).toBe(1.5);
