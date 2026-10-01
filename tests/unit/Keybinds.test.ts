@@ -56,6 +56,17 @@ describe('Keybinds', () => {
     expect(onPress).not.toHaveBeenCalled();
   });
 
+  test('press() and release() drive bindings without DOM events', () => {
+    const { keybinds, onPress, onRelease } = setup('hold');
+    keybinds.press('KeyX');
+    expect(keybinds.isActive('KeyX')).toBe(true);
+    keybinds.release('KeyX');
+    expect(onPress).toHaveBeenCalledTimes(1);
+    expect(onRelease).toHaveBeenCalledTimes(1);
+    keybinds.press('Nope');
+    expect(onPress).toHaveBeenCalledTimes(1);
+  });
+
   test('notifies listeners and stops after dispose', () => {
     const { target, keybinds, onPress } = setup('toggle');
     const listener = vi.fn();

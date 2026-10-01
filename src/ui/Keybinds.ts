@@ -47,13 +47,33 @@ export class Keybinds {
     this.listeners.clear();
   }
 
+  press(code: string): void {
+    const binding = this.byCode.get(code);
+    if (binding) this.activate(binding);
+  }
+
+  release(code: string): void {
+    const binding = this.byCode.get(code);
+    if (binding) this.deactivate(binding);
+  }
+
   private readonly onKeyDown = (event: Event): void => {
     const key = event as unknown as KeyEventLike;
     if (key.repeat === true || isTextInput(key.target)) return;
     const binding = this.byCode.get(key.code);
     if (!binding) return;
     key.preventDefault?.();
+    this.activate(binding);
+  };
 
+  private readonly onKeyUp = (event: Event): void => {
+    const key = event as unknown as KeyEventLike;
+    const binding = this.byCode.get(key.code);
+    if (binding?.mode !== 'hold') return;
+    this.deactivate(binding);
+  };
+
+  private activate(binding: Binding): void {
     if (binding.mode === 'toggle') {
       const next = !this.active.has(binding.code);
       binding.onPress(next);
@@ -64,15 +84,13 @@ export class Keybinds {
     binding.onPress(true);
     this.setActive(binding, true);
     if (binding.mode === 'trigger') this.setActive(binding, false);
-  };
+  }
 
-  private readonly onKeyUp = (event: Event): void => {
-    const key = event as unknown as KeyEventLike;
-    const binding = this.byCode.get(key.code);
-    if (binding?.mode !== 'hold') return;
+  private deactivate(binding: Binding): void {
+    if (binding.mode !== 'hold') return;
     binding.onRelease?.();
     this.setActive(binding, false);
-  };
+  }
 
   private setActive(binding: Binding, active: boolean): void {
     if (active) this.active.add(binding.code);

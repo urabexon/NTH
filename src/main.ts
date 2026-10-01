@@ -20,6 +20,10 @@ import { PolytopeManager } from './geometry/PolytopeManager';
 import { EFFECT_KINDS, type EffectKind } from './post/DeformEffect';
 import { DustParticles } from './particles/DustParticles';
 import { EdgeParticles } from './particles/EdgeParticles';
+import { MidiController } from './midi/MidiController';
+import { MidiInput } from './midi/MidiInput';
+import nanokontrol2 from './midi/nanokontrol2.json';
+import { midiMappingSchema } from './midi/schema';
 import { Pipeline } from './post/Pipeline';
 import { createBindings } from './ui/createBindings';
 import { Keybinds } from './ui/Keybinds';
@@ -147,6 +151,23 @@ async function bootstrap(): Promise<void> {
     window,
   );
   const legend = new KeyLegend(keybinds, document.body);
+
+  const midi = new MidiInput();
+  const midiController = new MidiController(
+    midiMappingSchema.parse(nanokontrol2),
+    parameters,
+    keybinds,
+  );
+  midi.onState((state) => {
+    document.documentElement.dataset.midi = state.status;
+    document.documentElement.dataset.midiInputs = state.inputs.join(',');
+  });
+  midi.onMessage((message) => {
+    if (midiController.handle(message)) {
+      document.documentElement.dataset.midiLast = `${String(message.cc)}:${String(message.value)}`;
+    }
+  });
+  void midi.connect();
   keybinds.onChange(() => {
     mirrorState(polytopes, pipeline, orbit);
   });
@@ -176,6 +197,7 @@ async function bootstrap(): Promise<void> {
     ticker.stop();
     keybinds.dispose();
     legend.dispose();
+    midi.dispose();
     panel.dispose();
     hopf.dispose();
     viewport.dispose();

@@ -94,6 +94,17 @@ describe('Parameters', () => {
     expect(targets.rotor.speedMultiplier).toBeCloseTo(ROTATION_SPEED_MAX, 6);
   });
 
+  test('setNormalized() maps 0..1 onto the parameter range', () => {
+    const targets = stubTargets();
+    const parameters = new Parameters(targets as unknown as ParameterTargets);
+    parameters.setNormalized('scale', 1);
+    expect(parameters.values.scale.target).toBe(2);
+    parameters.setNormalized('scale', -5);
+    expect(parameters.values.scale.target).toBe(0.25);
+    parameters.setNormalized('lensRadius', 0.5);
+    expect(parameters.values.lensRadius.target).toBe(500);
+  });
+
   test('jumpTo() applies immediately', () => {
     const targets = stubTargets();
     const parameters = new Parameters(targets as unknown as ParameterTargets);
