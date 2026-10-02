@@ -1,5 +1,15 @@
 import { expect, test } from '@playwright/test';
 
+const WEBGPU = !process.env.E2E_WEBGL_ONLY;
+const GPU_FEATURE = WEBGPU ? 'true' : 'false';
+
+test.beforeEach(async ({ page }) => {
+  if (WEBGPU) return;
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'gpu', { value: undefined });
+  });
+});
+
 test.describe('app boot', () => {
   test('renders the canvas with a GPU backend and saves a screenshot', async ({
     page,
@@ -13,7 +23,7 @@ test.describe('app boot', () => {
     await page.goto('/');
 
     const html = page.locator('html');
-    await expect(html).toHaveAttribute('data-backend', /^(webgpu|webgl2)$/);
+    await expect(html).toHaveAttribute('data-backend', WEBGPU ? 'webgpu' : 'webgl2');
     await expect(page.locator('#stage')).toBeVisible();
 
     const width = testInfo.project.use.viewport?.width ?? 0;
@@ -341,7 +351,7 @@ test.describe('app boot', () => {
         await page.goto(`/?seed=1&polytope=hypercube&${query}`);
         const html = page.locator('html');
         await expect(html).toHaveAttribute('data-ready', 'true');
-        await expect(html).toHaveAttribute('data-dust', name === 'off' ? 'false' : 'true');
+        await expect(html).toHaveAttribute('data-dust', name === 'off' ? 'false' : GPU_FEATURE);
         await page.waitForTimeout(1200);
         await page.screenshot({ path: testInfo.outputPath(`dust-${name}.png`) });
         expect(errors).toEqual([]);
@@ -364,7 +374,10 @@ test.describe('app boot', () => {
         await page.goto(`/?seed=1&polytope=24-cell&${query}`);
         const html = page.locator('html');
         await expect(html).toHaveAttribute('data-ready', 'true');
-        await expect(html).toHaveAttribute('data-particles', name === 'off' ? 'false' : 'true');
+        await expect(html).toHaveAttribute(
+          'data-particles',
+          name === 'off' ? 'false' : GPU_FEATURE,
+        );
         await page.waitForTimeout(1500);
         await page.screenshot({ path: testInfo.outputPath(`particles-${name}.png`) });
         expect(errors).toEqual([]);
@@ -387,6 +400,7 @@ test.describe('app boot', () => {
     });
 
     test('120-cell keeps a high frame rate with bloom', async ({ page }) => {
+      test.skip(!WEBGPU, 'software WebGL in CI cannot hold 60 fps');
       await page.goto('/?seed=1&polytope=120-cell');
       const html = page.locator('html');
       await expect(html).toHaveAttribute('data-ready', 'true');
@@ -442,6 +456,9 @@ test.describe('app boot', () => {
   test('falls back to WebGL2 when forced and skips particles', async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
+    page.on('console', (message) => {
+      if (message.type() === 'error') errors.push(message.text());
+    });
     await page.goto('/?webgl&seed=1');
     const html = page.locator('html');
     await expect(html).toHaveAttribute('data-backend', 'webgl2');

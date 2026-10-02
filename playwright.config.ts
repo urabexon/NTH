@@ -7,7 +7,7 @@ export default defineConfig({
   outputDir: 'test-results',
   fullyParallel: true,
   workers: 2,
-  timeout: 45_000,
+  timeout: process.env.CI ? 90_000 : 45_000,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
