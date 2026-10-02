@@ -5,6 +5,7 @@ export interface Binding {
   readonly key: string;
   readonly label: string;
   readonly mode: BindingMode;
+  readonly hidden?: boolean;
   readonly onPress: (active: boolean) => void;
   readonly onRelease?: () => void;
 }

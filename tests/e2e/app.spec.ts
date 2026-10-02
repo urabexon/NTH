@@ -85,7 +85,7 @@ test.describe('app boot', () => {
       await expect(panel).toHaveCount(0);
       await page.keyboard.press('KeyH');
       await expect(panel).toHaveAttribute('data-visible', 'true');
-      await expect(panel.locator('.tp-lblv')).toHaveCount(18);
+      await expect(panel.locator('.tp-lblv')).toHaveCount(23);
       await expect(panel.locator('.tp-lblv').first()).toContainText('fps');
       await page.waitForTimeout(300);
       await page.screenshot({ path: testInfo.outputPath('panel.png') });
@@ -172,6 +172,59 @@ test.describe('app boot', () => {
         expect(errors).toEqual([]);
       });
     }
+  });
+
+  test.describe('presets and share url', () => {
+    const snapshot = {
+      v: 1,
+      polytope: '24-cell',
+      params: { distance: 0.9, edgeWidth: 6 },
+      effect: 'repeat',
+      slitScan: true,
+      magnify: false,
+      invert: false,
+      faces: false,
+      particles: false,
+    };
+    const encode = (value: unknown) =>
+      Buffer.from(JSON.stringify(value), 'utf8')
+        .toString('base64')
+        .replaceAll('+', '-')
+        .replaceAll('/', '_')
+        .replace(/=+$/, '');
+
+    test('?s= restores polytope, effect and toggles', async ({ page }) => {
+      await page.goto(`/?seed=1&s=${encode(snapshot)}`);
+      const html = page.locator('html');
+      await expect(html).toHaveAttribute('data-ready', 'true');
+      await expect(html).toHaveAttribute('data-polytope', '24-cell');
+      await expect(html).toHaveAttribute('data-effect', 'repeat');
+      await expect(html).toHaveAttribute('data-slitscan', 'true');
+    });
+
+    test('digit keys recall a stored preset', async ({ page }) => {
+      await page.addInitScript(
+        (stored) => {
+          localStorage.setItem('nth.presets.v1', stored);
+        },
+        JSON.stringify({ v: 1, slots: { '2': { name: 'Cue 2', snapshot } } }),
+      );
+      await page.goto('/?seed=1&polytope=hypercube');
+      const html = page.locator('html');
+      await expect(html).toHaveAttribute('data-ready', 'true');
+      await page.keyboard.press('Digit1');
+      await expect(html).toHaveAttribute('data-polytope', 'hypercube');
+      await page.keyboard.press('Digit2');
+      await expect(html).toHaveAttribute('data-cue', '2');
+      await expect(html).toHaveAttribute('data-polytope', '24-cell');
+      await expect(html).toHaveAttribute('data-effect', 'repeat');
+    });
+
+    test('the legend does not list the nine cue keys', async ({ page }) => {
+      await page.goto('/?seed=1');
+      await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+      await expect(page.locator('nav.legend .legend-item')).toHaveCount(12);
+    });
   });
 
   test.describe('render scale', () => {

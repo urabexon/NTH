@@ -45,6 +45,14 @@ export interface PanelStats {
   fps: number;
 }
 
+export interface PanelPresets {
+  slot: number;
+  link: string;
+  save(slot: number): void;
+  recall(slot: number): void;
+  share(): string;
+}
+
 export interface PanelToggles {
   faces: boolean;
   particles: boolean;
@@ -63,11 +71,13 @@ export class ControlPanel {
     toggles: PanelToggles,
     onToggle: (key: keyof PanelToggles, value: boolean) => void,
     stats: PanelStats,
+    presets: PanelPresets,
   ) {
     this.pane = new Pane({ container, title: 'NTH' });
     this.element = this.pane.element;
     this.element.classList.add('control-panel');
     this.pane.addBinding(stats, 'fps', { readonly: true, format: (v: number) => v.toFixed(0) });
+    this.addPresetControls(presets);
 
     this.model = Object.fromEntries(
       PARAMETER_KEYS.map((key) => [key, parameters.values[key].target]),
@@ -92,6 +102,24 @@ export class ControlPanel {
       });
     }
     this.visible = false;
+  }
+
+  private addPresetControls(presets: PanelPresets): void {
+    const folder = this.pane.addFolder({ title: 'presets', expanded: false });
+    folder.addBinding(presets, 'slot', { label: 'slot', min: 1, max: 9, step: 1 });
+    folder.addButton({ title: 'save' }).on('click', () => {
+      presets.save(presets.slot);
+    });
+    folder.addButton({ title: 'recall' }).on('click', () => {
+      presets.recall(presets.slot);
+      this.sync();
+    });
+    const link = folder.addBinding(presets, 'link', { label: 'link', readonly: true });
+    folder.addButton({ title: 'copy link' }).on('click', () => {
+      presets.link = presets.share();
+      link.refresh();
+      void navigator.clipboard.writeText(presets.link).catch(() => undefined);
+    });
   }
 
   get visible(): boolean {

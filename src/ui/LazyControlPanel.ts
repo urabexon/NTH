@@ -1,4 +1,4 @@
-import type { ControlPanel, PanelStats, PanelToggles } from './ControlPanel';
+import type { ControlPanel, PanelPresets, PanelStats, PanelToggles } from './ControlPanel';
 import type { PanelLike } from './createBindings';
 import type { Parameters } from './Parameters';
 
@@ -13,6 +13,7 @@ export class LazyControlPanel implements PanelLike {
     private readonly toggles: PanelToggles,
     private readonly onToggle: (key: keyof PanelToggles, value: boolean) => void,
     private readonly stats: PanelStats,
+    private readonly presets: PanelPresets,
   ) {}
 
   get visible(): boolean {
@@ -37,6 +38,7 @@ export class LazyControlPanel implements PanelLike {
         this.toggles,
         this.onToggle,
         this.stats,
+        this.presets,
       );
       panel.visible = this.wantVisible;
       this.panel = panel;

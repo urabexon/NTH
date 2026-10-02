@@ -14,6 +14,10 @@ export interface AudioLike {
   enabled: boolean;
 }
 
+export interface PresetsLike {
+  recall(slot: number): void;
+}
+
 export interface BindingTargets {
   readonly polytopes: PolytopeManager;
   readonly rotor: Rotor4D;
@@ -21,15 +25,33 @@ export interface BindingTargets {
   readonly pipeline: Pipeline;
   readonly panel: PanelLike;
   readonly audio: AudioLike;
+  readonly presets: PresetsLike;
   readonly random: () => number;
 }
 
+function presetBindings(presets: PresetsLike): Binding[] {
+  return Array.from({ length: 9 }, (_, i) => {
+    const slot = i + 1;
+    return {
+      code: `Digit${String(slot)}`,
+      key: String(slot),
+      label: `Cue ${String(slot)}`,
+      mode: 'trigger' as const,
+      hidden: true,
+      onPress: () => {
+        presets.recall(slot);
+      },
+    };
+  });
+}
+
 export function createBindings(targets: BindingTargets): Binding[] {
-  const { polytopes, rotor, orbit, pipeline, panel, audio, random } = targets;
+  const { polytopes, rotor, orbit, pipeline, panel, audio, presets, random } = targets;
   const { deform, composite } = pipeline;
   let mirrorSide: 'mirror-left' | 'mirror-right' = random() < 0.5 ? 'mirror-left' : 'mirror-right';
 
   return [
+    ...presetBindings(presets),
     {
       code: 'Space',
       key: 'Space',
