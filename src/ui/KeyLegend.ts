@@ -19,6 +19,7 @@ export class KeyLegend {
     this.element.setAttribute('aria-label', 'Key bindings');
 
     for (const binding of keybinds.bindings) {
+      if (binding.hidden) continue;
       const item = this.createItem(binding);
       this.items.set(binding.code, item);
       this.element.append(item);

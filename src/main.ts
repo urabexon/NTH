@@ -30,6 +30,9 @@ import { MidiInput } from './midi/MidiInput';
 import nanokontrol2 from './midi/nanokontrol2.json';
 import { midiMappingSchema } from './midi/schema';
 import { Pipeline } from './post/Pipeline';
+import { AppState } from './state/AppState';
+import { shareUrl, snapshotFromSearch } from './state/encode';
+import { PresetStore } from './state/PresetStore';
 import { createBindings } from './ui/createBindings';
 import { Keybinds } from './ui/Keybinds';
 import { KeyLegend } from './ui/KeyLegend';
@@ -182,6 +185,25 @@ async function bootstrap(): Promise<void> {
   document.documentElement.dataset.particles = String(particles !== null);
   const toggles = { faces: polytopes.facesVisible, particles: particles !== null, audio: false };
   const stats = { fps: 0 };
+  const presetStore = new PresetStore(safeStorage());
+  let appState: AppState | null = null;
+  const presets = {
+    slot: 1,
+    link: '',
+    save(slot: number) {
+      if (appState) presetStore.save(slot, appState.capture());
+    },
+    recall(slot: number) {
+      const preset = presetStore.get(slot);
+      if (preset && appState) {
+        appState.apply(preset.snapshot);
+        document.documentElement.dataset.cue = String(slot);
+      }
+    },
+    share() {
+      return appState ? shareUrl(window.location.href, appState.capture()) : '';
+    },
+  };
   const panel = new LazyControlPanel(
     parameters,
     document.body,
@@ -192,14 +214,30 @@ async function bootstrap(): Promise<void> {
       if (key === 'audio') audio.enabled = value;
     },
     stats,
+    presets,
   );
   if (params.has('panel')) panel.visible = true;
 
   const keybinds = new Keybinds(
-    createBindings({ polytopes, rotor, orbit, pipeline, panel, audio, random: Math.random }),
+    createBindings({
+      polytopes,
+      rotor,
+      orbit,
+      pipeline,
+      panel,
+      audio,
+      presets,
+      random: Math.random,
+    }),
     window,
   );
   const legend = new KeyLegend(keybinds, document.body);
+  appState = new AppState({ parameters, polytopes, pipeline, orbit, keybinds, particles });
+  const shared = snapshotFromSearch(window.location.search);
+  if (shared) appState.apply(shared, { immediate: true });
+  keybinds.onChange(() => {
+    mirrorState(polytopes, pipeline, orbit);
+  });
   if (params.has('audio')) {
     keybinds.press('KeyM');
     toggles.audio = true;
@@ -221,9 +259,6 @@ async function bootstrap(): Promise<void> {
     }
   });
   void midi.connect();
-  keybinds.onChange(() => {
-    mirrorState(polytopes, pipeline, orbit);
-  });
   mirrorState(polytopes, pipeline, orbit);
 
   const focusProbe = new Vector3();
@@ -275,6 +310,14 @@ function mirrorState(polytopes: PolytopeManager, pipeline: Pipeline, orbit: Orbi
 
 function isEffectKind(value: string): value is EffectKind {
   return (EFFECT_KINDS as readonly string[]).includes(value);
+}
+
+function safeStorage(): Storage | null {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
 }
 
 function nextFrame(): Promise<void> {

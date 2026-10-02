@@ -19,6 +19,7 @@ function stubTargets(random = () => 0.1) {
     pipeline: { deform, composite },
     panel: { visible: false },
     audio: { enabled: false },
+    presets: { recall: vi.fn() },
     random,
   };
   return { targets, deform, composite };
@@ -38,7 +39,7 @@ function attach(random?: () => number) {
 describe('createBindings', () => {
   test('covers the documented keys', () => {
     const { keybinds } = attach();
-    expect(keybinds.bindings.map((b) => b.key)).toEqual([
+    expect(keybinds.bindings.filter((b) => !b.hidden).map((b) => b.key)).toEqual([
       'Space',
       'A',
       'S',
@@ -110,6 +111,15 @@ describe('createBindings', () => {
     expect(targets.panel.visible).toBe(true);
     press('KeyH');
     expect(targets.panel.visible).toBe(false);
+  });
+
+  test('digits recall preset slots and stay out of the legend', () => {
+    const { targets, keybinds, press } = attach();
+    press('Digit1');
+    press('Digit9');
+    expect(targets.presets.recall).toHaveBeenNthCalledWith(1, 1);
+    expect(targets.presets.recall).toHaveBeenNthCalledWith(2, 9);
+    expect(keybinds.bindings.filter((b) => b.hidden)).toHaveLength(9);
   });
 
   test('M toggles audio', () => {
