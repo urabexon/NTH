@@ -41,6 +41,10 @@ const SLIDERS: Readonly<Record<ParameterKey, SliderSpec>> = {
   renderScale: { label: 'render scale', min: RENDER_SCALE_MIN, max: RENDER_SCALE_MAX, step: 0.05 },
 };
 
+export interface PanelStats {
+  fps: number;
+}
+
 export interface PanelToggles {
   faces: boolean;
   particles: boolean;
@@ -58,10 +62,12 @@ export class ControlPanel {
     container: HTMLElement,
     toggles: PanelToggles,
     onToggle: (key: keyof PanelToggles, value: boolean) => void,
+    stats: PanelStats,
   ) {
     this.pane = new Pane({ container, title: 'NTH' });
     this.element = this.pane.element;
     this.element.classList.add('control-panel');
+    this.pane.addBinding(stats, 'fps', { readonly: true, format: (v: number) => v.toFixed(0) });
 
     this.model = Object.fromEntries(
       PARAMETER_KEYS.map((key) => [key, parameters.values[key].target]),

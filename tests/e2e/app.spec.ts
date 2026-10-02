@@ -85,7 +85,8 @@ test.describe('app boot', () => {
       await expect(panel).toHaveCount(0);
       await page.keyboard.press('KeyH');
       await expect(panel).toHaveAttribute('data-visible', 'true');
-      await expect(panel.locator('.tp-lblv')).toHaveCount(17);
+      await expect(panel.locator('.tp-lblv')).toHaveCount(18);
+      await expect(panel.locator('.tp-lblv').first()).toContainText('fps');
       await page.waitForTimeout(300);
       await page.screenshot({ path: testInfo.outputPath('panel.png') });
       await page.keyboard.press('KeyH');
