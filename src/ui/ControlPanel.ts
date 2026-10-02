@@ -10,6 +10,8 @@ import {
   LENS_RADIUS_MIN_PX,
   POLYTOPE_SCALE_MAX,
   POLYTOPE_SCALE_MIN,
+  RENDER_SCALE_MAX,
+  RENDER_SCALE_MIN,
   TRAIL_DAMP_MAX,
 } from '@/core/config';
 
@@ -36,6 +38,7 @@ const SLIDERS: Readonly<Record<ParameterKey, SliderSpec>> = {
   dust: { label: 'dust', min: 0, max: 1, step: 0.01 },
   audioSensitivity: { label: 'audio sens.', min: 0, max: 1, step: 0.01 },
   audioSmoothing: { label: 'audio smooth', min: 0, max: 1, step: 0.01 },
+  renderScale: { label: 'render scale', min: RENDER_SCALE_MIN, max: RENDER_SCALE_MAX, step: 0.05 },
 };
 
 export interface PanelToggles {
