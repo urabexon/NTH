@@ -1,5 +1,6 @@
 import type { AudioReactor } from '@/audio/AudioReactor';
 import type { OrbitalCamera } from '@/camera/OrbitalCamera';
+import type { Viewport } from '@/core/Viewport';
 import {
   BLOOM_STRENGTH_DEFAULT,
   AUDIO_SENSITIVITY_DEFAULT,
@@ -23,6 +24,8 @@ import {
   PROJECTION_DISTANCE_DEFAULT,
   PROJECTION_DISTANCE_MAX,
   PROJECTION_DISTANCE_MIN,
+  RENDER_SCALE_MAX,
+  RENDER_SCALE_MIN,
   ROTATION_SPEED_MAX,
   TRAIL_DAMP_DEFAULT,
   TRAIL_DAMP_MAX,
@@ -45,6 +48,8 @@ export interface ParameterTargets {
   readonly hopf: HopfFibration;
   readonly dust: DustParticles | null;
   readonly audio: AudioReactor;
+  readonly viewport: Viewport;
+  readonly initialRenderScale?: number;
 }
 
 export const PARAMETER_KEYS = [
@@ -61,6 +66,7 @@ export const PARAMETER_KEYS = [
   'dust',
   'audioSensitivity',
   'audioSmoothing',
+  'renderScale',
 ] as const;
 export type ParameterKey = (typeof PARAMETER_KEYS)[number];
 
@@ -95,6 +101,12 @@ export class Parameters {
       dust: new EasedValue(DUST_DENSITY_DEFAULT, 0, 1),
       audioSensitivity: new EasedValue(AUDIO_SENSITIVITY_DEFAULT, 0, 1),
       audioSmoothing: new EasedValue(AUDIO_SMOOTHING_DEFAULT, 0, 1),
+      renderScale: new EasedValue(
+        targets.initialRenderScale ?? RENDER_SCALE_MAX,
+        RENDER_SCALE_MIN,
+        RENDER_SCALE_MAX,
+        0,
+      ),
     };
     this.applyAll();
   }
@@ -131,7 +143,7 @@ export class Parameters {
 
   private apply(key: ParameterKey): void {
     const value = this.values[key].value + (this.offsets[key] ?? 0);
-    const { projector, rotor, polytopes, pipeline, hopf, dust, audio } = this.targets;
+    const { projector, rotor, polytopes, pipeline, hopf, dust, audio, viewport } = this.targets;
     switch (key) {
       case 'distance':
         projector.distance = distanceFromSlider(value);
@@ -171,6 +183,9 @@ export class Parameters {
         break;
       case 'audioSmoothing':
         audio.smoothing = value;
+        break;
+      case 'renderScale':
+        viewport.renderScale = value;
         break;
     }
   }

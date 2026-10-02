@@ -33,6 +33,7 @@ function stubTargets() {
     hopf: { fiberCount: 0 },
     dust: { density: 0 },
     audio: { sensitivity: 0, smoothing: 0 },
+    viewport: { renderScale: 1 },
   };
   return targets;
 }
@@ -115,6 +116,18 @@ describe('Parameters', () => {
     expect(targets.projector.distance).toBeLessThan(before);
     parameters.setOffset('distance', 0);
     expect(targets.projector.distance).toBeCloseTo(before, 9);
+  });
+
+  test('renderScale starts from the initial value and applies instantly', () => {
+    const targets = stubTargets();
+    const parameters = new Parameters({
+      ...(targets as unknown as ParameterTargets),
+      initialRenderScale: 0.75,
+    });
+    expect(targets.viewport.renderScale).toBe(0.75);
+    parameters.set('renderScale', 1);
+    parameters.update(1 / 60);
+    expect(targets.viewport.renderScale).toBe(1);
   });
 
   test('jumpTo() applies immediately', () => {

@@ -8,10 +8,13 @@ import {
   CLEAR_COLOR,
   DUST_DENSITY_DEFAULT,
   EDGE_WIDTH_DEFAULT_PX,
+  HIDPI_THRESHOLD,
+  RENDER_SCALE_HIDPI_DEFAULT,
   TRAIL_DAMP_DEFAULT,
 } from './core/config';
 import { FpsMeter } from './core/FpsMeter';
 import { captureMotion } from './core/motion';
+import { defaultRenderScale } from './core/screen';
 import { createRenderer } from './core/renderer';
 import { Rotor4D } from './core/Rotor4D';
 import { Ticker } from './core/Ticker';
@@ -142,7 +145,12 @@ async function bootstrap(): Promise<void> {
     hopf,
     dust,
     audio: audioReactor,
+    viewport,
+    initialRenderScale:
+      readNumber(params, 'renderScale') ??
+      defaultRenderScale(window.devicePixelRatio, HIDPI_THRESHOLD, RENDER_SCALE_HIDPI_DEFAULT),
   });
+  document.documentElement.dataset.renderScale = String(viewport.renderScale);
   if (params.has('dust') && dust)
     parameters.jumpTo('dust', readNumber(params, 'dust') ?? DUST_DENSITY_DEFAULT);
   if (params.has('fibers')) parameters.jumpTo('fibers', readNumber(params, 'fibers') ?? 0);

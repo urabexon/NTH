@@ -85,7 +85,7 @@ test.describe('app boot', () => {
       await expect(panel).toHaveCount(0);
       await page.keyboard.press('KeyH');
       await expect(panel).toHaveAttribute('data-visible', 'true');
-      await expect(panel.locator('.tp-lblv')).toHaveCount(16);
+      await expect(panel.locator('.tp-lblv')).toHaveCount(17);
       await page.waitForTimeout(300);
       await page.screenshot({ path: testInfo.outputPath('panel.png') });
       await page.keyboard.press('KeyH');
@@ -171,6 +171,20 @@ test.describe('app boot', () => {
         expect(errors).toEqual([]);
       });
     }
+  });
+
+  test.describe('render scale', () => {
+    test('defaults to 1 at pixel ratio 1 and honours ?renderScale', async ({ page }, testInfo) => {
+      await page.goto('/?seed=1&polytope=hypercube&particles=0&dust=0');
+      const html = page.locator('html');
+      await expect(html).toHaveAttribute('data-ready', 'true');
+      await expect(html).toHaveAttribute('data-render-scale', '1');
+      await page.goto('/?seed=1&polytope=hypercube&particles=0&dust=0&renderScale=0.5');
+      await expect(html).toHaveAttribute('data-ready', 'true');
+      await expect(html).toHaveAttribute('data-render-scale', '0.5');
+      await page.waitForTimeout(400);
+      await page.screenshot({ path: testInfo.outputPath('render-scale-0.5.png') });
+    });
   });
 
   test.describe('audio', () => {

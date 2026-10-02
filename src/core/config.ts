@@ -124,3 +124,8 @@ export const AUDIO_ONSET_THRESHOLD = 0.18;
 export const AUDIO_ONSET_MIN_INTERVAL = 0.35;
 export const AUDIO_ONSET_AVERAGE_TIME = 0.8;
 export const AUDIO_TEST_TONE_HZ = 60;
+
+export const RENDER_SCALE_MIN = 0.5;
+export const RENDER_SCALE_MAX = 1;
+export const RENDER_SCALE_HIDPI_DEFAULT = 0.75;
+export const HIDPI_THRESHOLD = 2;
