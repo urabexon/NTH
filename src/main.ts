@@ -181,11 +181,18 @@ async function bootstrap(): Promise<void> {
   }
   document.documentElement.dataset.particles = String(particles !== null);
   const toggles = { faces: polytopes.facesVisible, particles: particles !== null, audio: false };
-  const panel = new LazyControlPanel(parameters, document.body, toggles, (key, value) => {
-    if (key === 'faces') polytopes.facesVisible = value;
-    if (key === 'particles' && particles) particles.visible = value;
-    if (key === 'audio') audio.enabled = value;
-  });
+  const stats = { fps: 0 };
+  const panel = new LazyControlPanel(
+    parameters,
+    document.body,
+    toggles,
+    (key, value) => {
+      if (key === 'faces') polytopes.facesVisible = value;
+      if (key === 'particles' && particles) particles.visible = value;
+      if (key === 'audio') audio.enabled = value;
+    },
+    stats,
+  );
   if (params.has('panel')) panel.visible = true;
 
   const keybinds = new Keybinds(
@@ -221,6 +228,7 @@ async function bootstrap(): Promise<void> {
 
   const focusProbe = new Vector3();
   const fpsMeter = new FpsMeter((fps) => {
+    stats.fps = fps;
     document.documentElement.dataset.fps = fps.toFixed(0);
   });
 

@@ -1,4 +1,4 @@
-import type { ControlPanel, PanelToggles } from './ControlPanel';
+import type { ControlPanel, PanelStats, PanelToggles } from './ControlPanel';
 import type { PanelLike } from './createBindings';
 import type { Parameters } from './Parameters';
 
@@ -12,6 +12,7 @@ export class LazyControlPanel implements PanelLike {
     private readonly container: HTMLElement,
     private readonly toggles: PanelToggles,
     private readonly onToggle: (key: keyof PanelToggles, value: boolean) => void,
+    private readonly stats: PanelStats,
   ) {}
 
   get visible(): boolean {
@@ -30,7 +31,13 @@ export class LazyControlPanel implements PanelLike {
   async load(): Promise<ControlPanel> {
     if (this.panel) return this.panel;
     this.loading ??= import('./ControlPanel').then(({ ControlPanel }) => {
-      const panel = new ControlPanel(this.parameters, this.container, this.toggles, this.onToggle);
+      const panel = new ControlPanel(
+        this.parameters,
+        this.container,
+        this.toggles,
+        this.onToggle,
+        this.stats,
+      );
       panel.visible = this.wantVisible;
       this.panel = panel;
       return panel;
