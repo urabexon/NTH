@@ -68,7 +68,7 @@ export function thickEdgeVertex({ matrix4d, distance, widthPx }: ThickEdgeInputs
     return vec4(clipCurr.xy.add(offset.mul(clipCurr.w)), clipCurr.zw);
   })();
 
-  const across = varying(side, 'edgeAcross').setInterpolation('linear');
+  const across = varying(side, 'edgeAcross');
 
   return { vertex, velocity, across };
 }
