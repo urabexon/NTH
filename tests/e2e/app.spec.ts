@@ -1,17 +1,25 @@
-import { expect, test } from '@playwright/test';
+import { expect, test as base } from '@playwright/test';
 
 const WEBGPU = !process.env.E2E_WEBGL_ONLY;
 const GPU_FEATURE = WEBGPU ? 'true' : 'false';
+const LIGHT_QUERY = WEBGPU ? '' : 'renderScale=0.5';
 
-test.beforeEach(async ({ page }) => {
-  if (WEBGPU) return;
-  await page.addInitScript(() => {
-    Object.defineProperty(navigator, 'gpu', { value: undefined });
-  });
+const test = base.extend({
+  page: async ({ page }, use) => {
+    if (!WEBGPU) {
+      await page.addInitScript(() => {
+        Object.defineProperty(navigator, 'gpu', { value: undefined });
+      });
+      const goto = page.goto.bind(page);
+      page.goto = (url, options) =>
+        goto(url.includes('?') ? `${url}&${LIGHT_QUERY}` : `${url}?${LIGHT_QUERY}`, options);
+    }
+    await use(page);
+  },
 });
 
 test.describe('app boot', () => {
-  test('renders the canvas with a GPU backend and saves a screenshot', async ({
+  test('renders the canvas with a GPU backend and saves a screenshot @smoke', async ({
     page,
   }, testInfo) => {
     const errors: string[] = [];
@@ -57,7 +65,7 @@ test.describe('app boot', () => {
       });
     }
 
-    test('keys toggle effects and the legend reflects them', async ({ page }, testInfo) => {
+    test('keys toggle effects and the legend reflects them @smoke', async ({ page }, testInfo) => {
       await page.goto('/?seed=1&polytope=hypercube');
       const html = page.locator('html');
       await expect(html).toHaveAttribute('data-ready', 'true');
@@ -87,7 +95,7 @@ test.describe('app boot', () => {
       await expect(legend.locator('.legend-item.is-active')).toHaveCount(0);
     });
 
-    test('H shows the control panel and its sliders', async ({ page }, testInfo) => {
+    test('H shows the control panel and its sliders @smoke', async ({ page }, testInfo) => {
       await page.goto('/?seed=1&polytope=hypercube');
       const html = page.locator('html');
       await expect(html).toHaveAttribute('data-ready', 'true');
@@ -114,7 +122,7 @@ test.describe('app boot', () => {
       await expect(legend).not.toHaveClass(/is-hidden/);
     });
 
-    test('Space switches to a different polytope', async ({ page }) => {
+    test('Space switches to a different polytope @smoke', async ({ page }) => {
       await page.goto('/?seed=1');
       const html = page.locator('html');
       await expect(html).toHaveAttribute('data-ready', 'true');
@@ -203,7 +211,7 @@ test.describe('app boot', () => {
         .replaceAll('/', '_')
         .replace(/=+$/, '');
 
-    test('?s= restores polytope, effect and toggles', async ({ page }) => {
+    test('?s= restores polytope, effect and toggles @smoke', async ({ page }) => {
       await page.goto(`/?seed=1&s=${encode(snapshot)}`);
       const html = page.locator('html');
       await expect(html).toHaveAttribute('data-ready', 'true');
@@ -212,7 +220,7 @@ test.describe('app boot', () => {
       await expect(html).toHaveAttribute('data-slitscan', 'true');
     });
 
-    test('digit keys recall a stored preset', async ({ page }) => {
+    test('digit keys recall a stored preset @smoke', async ({ page }) => {
       await page.addInitScript(
         (stored) => {
           localStorage.setItem('nth.presets.v1', stored);
@@ -242,7 +250,7 @@ test.describe('app boot', () => {
       await page.goto('/?seed=1&polytope=hypercube&particles=0&dust=0');
       const html = page.locator('html');
       await expect(html).toHaveAttribute('data-ready', 'true');
-      await expect(html).toHaveAttribute('data-render-scale', '1');
+      await expect(html).toHaveAttribute('data-render-scale', WEBGPU ? '1' : '0.5');
       await page.goto('/?seed=1&polytope=hypercube&particles=0&dust=0&renderScale=0.5');
       await expect(html).toHaveAttribute('data-ready', 'true');
       await expect(html).toHaveAttribute('data-render-scale', '0.5');
@@ -262,7 +270,7 @@ test.describe('app boot', () => {
       await expect(html).toHaveAttribute('data-audio', 'off');
     });
 
-    test('M requests the microphone and reports denial without errors', async ({ page }) => {
+    test('M requests the microphone and reports denial without errors @smoke', async ({ page }) => {
       const errors: string[] = [];
       page.on('pageerror', (error) => errors.push(error.message));
       await page.addInitScript(() => {
@@ -280,7 +288,7 @@ test.describe('app boot', () => {
   });
 
   test.describe('midi', () => {
-    test('drives keys and parameters from a fake nanoKONTROL2', async ({ page }) => {
+    test('drives keys and parameters from a fake nanoKONTROL2 @smoke', async ({ page }) => {
       await page.addInitScript(() => {
         const input = { id: '0', name: 'nanoKONTROL2', onmidimessage: null as unknown };
         const access = { inputs: new Map([['0', input]]), onstatechange: null };
@@ -313,7 +321,7 @@ test.describe('app boot', () => {
       await expect(html).toHaveAttribute('data-midi-last', '0:127');
     });
 
-    test('reports unsupported when Web MIDI is missing', async ({ page }) => {
+    test('reports unsupported when Web MIDI is missing @smoke', async ({ page }) => {
       await page.addInitScript(() => {
         Object.defineProperty(navigator, 'requestMIDIAccess', { value: undefined });
       });
@@ -453,7 +461,7 @@ test.describe('app boot', () => {
     }
   });
 
-  test('falls back to WebGL2 when forced and skips particles', async ({ page }) => {
+  test('falls back to WebGL2 when forced and skips particles @smoke', async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     page.on('console', (message) => {
