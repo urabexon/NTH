@@ -1,7 +1,7 @@
 import { Graph } from './Graph';
 import { graphsFileSchema } from './schema';
 
-export const GRAPHS_URL = '/data/graphs.json';
+export const GRAPHS_URL = `${import.meta.env.BASE_URL}data/graphs.json`;
 
 export type GraphSet = ReadonlyMap<string, Graph>;
 

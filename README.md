@@ -27,3 +27,15 @@ A VJ tool that renders stereographic projections of 4D polytopes with WebGPU.
 pnpm install
 pnpm dev
 ```
+
+## Build and deploy
+
+```sh
+pnpm build            # static site in dist/
+pnpm preview          # serve dist/ locally (pass the same BASE_PATH used for the build)
+```
+
+The site must be served over HTTPS (WebGPU, Web MIDI and microphone input require it).
+
+- **GitHub Pages**: the `Deploy` workflow builds with `BASE_PATH=/<repo>/` and publishes `dist/` on every push to `main`. Enable Pages with source "GitHub Actions" in the repository settings. Pages on a private repository needs a paid GitHub plan; public repositories work on the free plan.
+- **Vercel or any static host**: import the repository, build command `pnpm build`, output directory `dist`. Leave `BASE_PATH` unset when the site is served from the domain root.
