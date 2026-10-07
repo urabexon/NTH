@@ -43,6 +43,11 @@ const SLIDERS: Readonly<Record<ParameterKey, SliderSpec>> = {
 
 export interface PanelStats {
   fps: number;
+  cpuMs: number;
+  gpuMs: number;
+  drawCalls: number;
+  triangles: number;
+  vramMb: number;
 }
 
 export interface PanelPresets {
@@ -77,6 +82,32 @@ export class ControlPanel {
     this.element = this.pane.element;
     this.element.classList.add('control-panel');
     this.pane.addBinding(stats, 'fps', { readonly: true, format: (v: number) => v.toFixed(0) });
+    const perf = this.pane.addFolder({ title: 'perf', expanded: false });
+    perf.addBinding(stats, 'cpuMs', {
+      readonly: true,
+      label: 'cpu ms',
+      format: (v: number) => v.toFixed(2),
+    });
+    perf.addBinding(stats, 'gpuMs', {
+      readonly: true,
+      label: 'gpu ms',
+      format: (v: number) => v.toFixed(2),
+    });
+    perf.addBinding(stats, 'drawCalls', {
+      readonly: true,
+      label: 'draw calls',
+      format: (v: number) => v.toFixed(0),
+    });
+    perf.addBinding(stats, 'triangles', {
+      readonly: true,
+      label: 'triangles',
+      format: (v: number) => v.toFixed(0),
+    });
+    perf.addBinding(stats, 'vramMb', {
+      readonly: true,
+      label: 'vram MB',
+      format: (v: number) => v.toFixed(1),
+    });
     this.addPresetControls(presets);
 
     this.model = Object.fromEntries(
