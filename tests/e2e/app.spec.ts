@@ -103,7 +103,7 @@ test.describe('app boot', () => {
       await expect(panel).toHaveCount(0);
       await page.keyboard.press('KeyH');
       await expect(panel).toHaveAttribute('data-visible', 'true');
-      await expect(panel.locator('.tp-lblv')).toHaveCount(23);
+      await expect(panel.locator('.tp-lblv')).toHaveCount(28);
       await expect(panel.locator('.tp-lblv').first()).toContainText('fps');
       await page.waitForTimeout(300);
       await page.screenshot({ path: testInfo.outputPath('panel.png') });
@@ -405,6 +405,21 @@ test.describe('app boot', () => {
         await page.screenshot({ path: testInfo.outputPath(`bloom-${variant}.png`) });
       }
       expect(errors).toEqual([]);
+    });
+
+    test('exposes frame cost counters', async ({ page }) => {
+      await page.goto('/?seed=1&polytope=24-cell');
+      const html = page.locator('html');
+      await expect(html).toHaveAttribute('data-ready', 'true');
+      await expect(html).toHaveAttribute('data-perf-draws', /^[1-9]\d*$/);
+      await expect(html).toHaveAttribute('data-perf-triangles', /^[1-9]\d*$/);
+      await expect(html).toHaveAttribute('data-perf-vram', /^[1-9]\d*\.\d$/);
+      await expect(html).toHaveAttribute('data-perf-cpu', /^\d+\.\d\d$/);
+      if (WEBGPU)
+        await expect(html).toHaveAttribute(
+          'data-perf-gpu',
+          /^[0-9]*[1-9]\d*\.\d\d$|^0\.[0-9]*[1-9]\d*$/,
+        );
     });
 
     test('120-cell keeps a high frame rate with bloom', async ({ page }) => {

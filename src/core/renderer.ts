@@ -22,6 +22,7 @@ export async function createRenderer(
     canvas,
     antialias: true,
     forceWebGL: options.forceWebGL ?? false,
+    trackTimestamp: true,
   });
 
   await renderer.init();

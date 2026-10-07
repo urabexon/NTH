@@ -13,6 +13,7 @@ import {
   TRAIL_DAMP_DEFAULT,
 } from './core/config';
 import { FpsMeter } from './core/FpsMeter';
+import { PerfMeter } from './core/PerfMeter';
 import { captureMotion } from './core/motion';
 import { defaultRenderScale } from './core/screen';
 import { createRenderer } from './core/renderer';
@@ -184,7 +185,8 @@ async function bootstrap(): Promise<void> {
   }
   document.documentElement.dataset.particles = String(particles !== null);
   const toggles = { faces: polytopes.facesVisible, particles: particles !== null, audio: false };
-  const stats = { fps: 0 };
+  const perfMeter = new PerfMeter(renderer, backend === 'webgpu');
+  const stats = Object.assign(perfMeter.sample, { fps: 0 });
   const presetStore = new PresetStore(safeStorage());
   let appState: AppState | null = null;
   const presets = {
@@ -264,10 +266,17 @@ async function bootstrap(): Promise<void> {
   const focusProbe = new Vector3();
   const fpsMeter = new FpsMeter((fps) => {
     stats.fps = fps;
-    document.documentElement.dataset.fps = fps.toFixed(0);
+    const data = document.documentElement.dataset;
+    data.fps = fps.toFixed(0);
+    data.perfCpu = stats.cpuMs.toFixed(2);
+    data.perfGpu = stats.gpuMs.toFixed(2);
+    data.perfDraws = String(stats.drawCalls);
+    data.perfTriangles = String(stats.triangles);
+    data.perfVram = stats.vramMb.toFixed(1);
   });
 
   const ticker = new Ticker((dt) => {
+    perfMeter.beginFrame();
     if (audioInput.status === 'on') {
       audioReactor.update(dt);
       document.documentElement.dataset.audioLevel = audioReactor.currentLevel.toFixed(2);
@@ -282,6 +291,7 @@ async function bootstrap(): Promise<void> {
     pipeline.focusDistance = orbit.camera.getWorldPosition(focusProbe).length();
     pipeline.render();
     captureMotion(rotor.matrix, projector.distance, orbit.camera);
+    perfMeter.endFrame();
     fpsMeter.tick(dt);
   });
   ticker.start();
