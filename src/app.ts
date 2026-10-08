@@ -3,6 +3,8 @@ import { Color, Scene, Vector3 } from 'three';
 import { AudioInput } from './audio/AudioInput';
 import { AudioReactor } from './audio/AudioReactor';
 import { OrbitalCamera } from './camera/OrbitalCamera';
+import { DemoPlayer } from './demo/DemoPlayer';
+import { timelineSchema } from './demo/schema';
 import { Projector4D } from './core/Projector4D';
 import {
   CLEAR_COLOR,
@@ -234,11 +236,25 @@ export async function bootstrap(): Promise<void> {
     window,
   );
   const legend = new KeyLegend(keybinds, document.body);
+  legend.addAction('toggle-panel', 'Panel', () => {
+    keybinds.press('KeyH');
+  });
   appState = new AppState({ parameters, polytopes, pipeline, orbit, keybinds, particles });
+  let applyingCue = false;
+  const demo = await createDemo(appState, audioInput, keybinds, legend, (apply) => {
+    applyingCue = true;
+    try {
+      apply();
+    } finally {
+      applyingCue = false;
+    }
+    mirrorState(polytopes, pipeline, orbit);
+  });
   const shared = snapshotFromSearch(window.location.search);
   if (shared) appState.apply(shared, { immediate: true });
-  keybinds.onChange(() => {
+  keybinds.onChange((binding) => {
     mirrorState(polytopes, pipeline, orbit);
+    if (binding.code !== 'KeyH' && !applyingCue) demo?.stop();
   });
   if (params.has('audio')) {
     keybinds.press('KeyM');
@@ -277,6 +293,7 @@ export async function bootstrap(): Promise<void> {
 
   const ticker = new Ticker((dt) => {
     perfMeter.beginFrame();
+    demo?.update();
     if (audioInput.status === 'on') {
       audioReactor.update(dt);
       document.documentElement.dataset.audioLevel = audioReactor.currentLevel.toFixed(2);
@@ -320,6 +337,60 @@ function mirrorState(polytopes: PolytopeManager, pipeline: Pipeline, orbit: Orbi
 
 function isEffectKind(value: string): value is EffectKind {
   return (EFFECT_KINDS as readonly string[]).includes(value);
+}
+
+async function createDemo(
+  appState: AppState,
+  audioInput: AudioInput,
+  keybinds: Keybinds,
+  legend: KeyLegend,
+  withCue: (apply: () => void) => void,
+): Promise<DemoPlayer | null> {
+  const base = import.meta.env.BASE_URL;
+  let timeline;
+  try {
+    const response = await fetch(`${base}demo/timeline.json`);
+    if (!response.ok) return null;
+    timeline = timelineSchema.parse(await response.json());
+  } catch {
+    return null;
+  }
+  const data = document.documentElement.dataset;
+  const player = new DemoPlayer(
+    timeline,
+    {
+      start: (file) => audioInput.start({ file: base + file }),
+      stop: () => {
+        audioInput.stop();
+      },
+      get playbackTime() {
+        return audioInput.playbackTime;
+      },
+      get hasEnded() {
+        return audioInput.hasEnded;
+      },
+    },
+    {
+      onCue: (index, cue) => {
+        withCue(() => {
+          if (cue.snapshot) appState.apply(cue.snapshot);
+          for (const code of cue.keys ?? []) keybinds.press(code);
+        });
+        data.demoCue = String(index);
+      },
+      onStateChange: (state) => {
+        data.demo = state;
+        button.textContent = state === 'playing' ? 'Stop' : 'Demo';
+        if (state !== 'playing' && keybinds.isActive('KeyM')) keybinds.press('KeyM');
+      },
+    },
+  );
+  const button = legend.addAction('play-demo', 'Demo', () => {
+    if (player.state === 'playing') player.stop();
+    else void player.start();
+  });
+  data.demo = 'off';
+  return player;
 }
 
 function safeStorage(): Storage | null {
