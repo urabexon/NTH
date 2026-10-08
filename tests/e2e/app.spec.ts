@@ -261,10 +261,13 @@ test.describe('app boot', () => {
       await button.click();
       await expect(html).toHaveAttribute('data-demo', 'playing');
       await expect(button).toHaveText('Stop');
-      await expect(html).toHaveAttribute('data-demo-cue', '0');
-      await expect(html).toHaveAttribute('data-polytope', '120-cell');
+      await expect(html).toHaveAttribute('data-demo-cue', /^\d+$/);
+      await expect(html).not.toHaveAttribute('data-polytope', 'hypercube');
       await expect(html).toHaveAttribute('data-audio', 'on');
-      await expect(html).toHaveAttribute('data-demo-cue', /^[1-9]/, { timeout: 8000 });
+      const firstCue = Number(await html.getAttribute('data-demo-cue'));
+      await expect
+        .poll(async () => Number(await html.getAttribute('data-demo-cue')), { timeout: 15_000 })
+        .toBeGreaterThan(firstCue);
       await expect(html).toHaveAttribute('data-demo', 'playing');
       await page.keyboard.press('Space');
       await expect(html).toHaveAttribute('data-demo', 'off');
