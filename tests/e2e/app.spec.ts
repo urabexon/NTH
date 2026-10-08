@@ -1,4 +1,4 @@
-import { expect, test as base } from '@playwright/test';
+import { devices, expect, test as base } from '@playwright/test';
 
 const WEBGPU = !process.env.E2E_WEBGL_ONLY;
 const GPU_FEATURE = WEBGPU ? 'true' : 'false';
@@ -242,6 +242,34 @@ test.describe('app boot', () => {
       await page.goto('/?seed=1');
       await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
       await expect(page.locator('nav.legend .legend-item')).toHaveCount(12);
+    });
+  });
+
+  test.describe('unsupported devices', () => {
+    test('a phone gets the static screen and never loads the app @smoke', async ({ browser }) => {
+      const context = await browser.newContext(devices['iPhone 15']);
+      const page = await context.newPage();
+      const appRequests: string[] = [];
+      page.on('request', (request) => {
+        if (/\/src\/app\.ts|three/.test(request.url())) appRequests.push(request.url());
+      });
+      await page.goto('/');
+      const html = page.locator('html');
+      await expect(html).toHaveAttribute('data-unsupported', 'true');
+      await expect(page.locator('.unsupported img')).toHaveCount(3);
+      await expect(page.locator('#stage')).toHaveCount(0);
+      await page.waitForTimeout(500);
+      expect(appRequests).toEqual([]);
+      await expect(html).not.toHaveAttribute('data-backend', /./);
+      await context.close();
+    });
+
+    test('?force runs the app on a phone', async ({ browser }) => {
+      const context = await browser.newContext(devices['iPhone 15']);
+      const page = await context.newPage();
+      await page.goto('/?force&seed=1');
+      await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+      await context.close();
     });
   });
 
