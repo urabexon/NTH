@@ -18,6 +18,17 @@ body {
   justify-content: center;
 }
 
+html.is-unsupported {
+  height: auto;
+  overflow: auto;
+}
+
+body.is-unsupported {
+  display: block;
+  height: auto;
+  min-height: 100%;
+}
+
 #stage {
   display: block;
   background: var(--color-background);
@@ -83,4 +94,43 @@ body {
   right: 16px;
   width: 260px;
   z-index: 10;
+}
+
+.unsupported {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 20px calc(env(safe-area-inset-bottom, 0px) + 32px);
+  color: rgb(255 255 255 / 85%);
+  font:
+    16px/1.6 system-ui,
+    sans-serif;
+  text-align: center;
+}
+
+.unsupported h1 {
+  margin: 0 0 4px;
+  font-size: 40px;
+  letter-spacing: 0.2em;
+}
+
+.unsupported-gallery {
+  display: grid;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.unsupported-gallery img {
+  width: 100%;
+  border-radius: 10px;
+  background: var(--color-background);
+}
+
+.unsupported-note {
+  font-weight: 600;
+}
+
+.unsupported-url {
+  font-family: ui-monospace, monospace;
+  opacity: 0.7;
+  word-break: break-all;
 }
