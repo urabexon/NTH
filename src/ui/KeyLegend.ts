@@ -33,6 +33,20 @@ export class KeyLegend {
     this.reveal();
   }
 
+  addAction(id: string, label: string, onClick: () => void): HTMLButtonElement {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.id = id;
+    button.className = 'legend-action';
+    button.textContent = label;
+    button.addEventListener('click', () => {
+      onClick();
+      this.reveal();
+    });
+    this.element.append(button);
+    return button;
+  }
+
   get isVisible(): boolean {
     return !this.element.classList.contains('is-hidden');
   }

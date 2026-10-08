@@ -1,0 +1,530 @@
+{
+  "v": 1,
+  "track": "demo/track.m4a",
+  "cues": [
+    {
+      "at": 0.0,
+      "label": "chorus 1",
+      "snapshot": {
+        "v": 1,
+        "polytope": "120-cell",
+        "params": {
+          "distance": 0.42,
+          "rotationSpeed": 0.85,
+          "scale": 1.1,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "none",
+        "slitScan": false,
+        "magnify": false,
+        "invert": false,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyS"]
+    },
+    {
+      "at": 2.76,
+      "label": "chorus 2",
+      "snapshot": {
+        "v": 1,
+        "polytope": "600-cell",
+        "params": {
+          "distance": 0.45,
+          "rotationSpeed": 0.8,
+          "scale": 1.05,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "mirror-left",
+        "slitScan": false,
+        "magnify": false,
+        "invert": false,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyA"]
+    },
+    {
+      "at": 5.52,
+      "label": "chorus 3",
+      "snapshot": {
+        "v": 1,
+        "polytope": "24-cell",
+        "params": {
+          "distance": 0.4,
+          "rotationSpeed": 0.9,
+          "scale": 1.05,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 32
+        },
+        "effect": "none",
+        "slitScan": false,
+        "magnify": false,
+        "invert": false,
+        "faces": false,
+        "particles": true
+      },
+      "keys": ["KeyS"]
+    },
+    {
+      "at": 8.28,
+      "label": "chorus 4",
+      "snapshot": {
+        "v": 1,
+        "polytope": "hypercube",
+        "params": {
+          "distance": 0.35,
+          "rotationSpeed": 0.95,
+          "scale": 1.05,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "repeat",
+        "slitScan": false,
+        "magnify": true,
+        "invert": false,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyA"]
+    },
+    {
+      "at": 11.03,
+      "label": "chorus 5",
+      "snapshot": {
+        "v": 1,
+        "polytope": "120-cell",
+        "params": {
+          "distance": 0.5,
+          "rotationSpeed": 0.7,
+          "scale": 1,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "none",
+        "slitScan": false,
+        "magnify": false,
+        "invert": true,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyS"]
+    },
+    {
+      "at": 13.79,
+      "label": "chorus 6",
+      "snapshot": {
+        "v": 1,
+        "polytope": "8-hedra-solid",
+        "params": {
+          "distance": 0.45,
+          "rotationSpeed": 0.85,
+          "scale": 1.05,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "mirror-right",
+        "slitScan": false,
+        "magnify": false,
+        "invert": false,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyA"]
+    },
+    {
+      "at": 16.55,
+      "label": "chorus 7",
+      "snapshot": {
+        "v": 1,
+        "polytope": "600-cell",
+        "params": {
+          "distance": 0.38,
+          "rotationSpeed": 0.9,
+          "scale": 1.05,
+          "bloomStrength": 0.5,
+          "trails": 0.85,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "none",
+        "slitScan": true,
+        "magnify": false,
+        "invert": false,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyS"]
+    },
+    {
+      "at": 19.31,
+      "label": "chorus 8",
+      "snapshot": {
+        "v": 1,
+        "polytope": "24-cell",
+        "params": {
+          "distance": 0.44,
+          "rotationSpeed": 0.8,
+          "scale": 1.05,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 48
+        },
+        "effect": "none",
+        "slitScan": false,
+        "magnify": false,
+        "invert": false,
+        "faces": false,
+        "particles": true
+      },
+      "keys": ["KeyA", "KeyS"]
+    },
+    {
+      "at": 22.07,
+      "label": "chorus 9",
+      "snapshot": {
+        "v": 1,
+        "polytope": "truncated-hypercube",
+        "params": {
+          "distance": 0.42,
+          "rotationSpeed": 0.9,
+          "scale": 1.05,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "repeat",
+        "slitScan": false,
+        "magnify": false,
+        "invert": false,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyA"]
+    },
+    {
+      "at": 24.83,
+      "label": "chorus 10",
+      "snapshot": {
+        "v": 1,
+        "polytope": "120-cell",
+        "params": {
+          "distance": 0.36,
+          "rotationSpeed": 1,
+          "scale": 1.15,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "none",
+        "slitScan": false,
+        "magnify": true,
+        "invert": true,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyS"]
+    },
+    {
+      "at": 27.59,
+      "label": "chorus 11",
+      "snapshot": {
+        "v": 1,
+        "polytope": "hypercube",
+        "params": {
+          "distance": 0.45,
+          "rotationSpeed": 0.85,
+          "scale": 1.05,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "mirror-left",
+        "slitScan": false,
+        "magnify": false,
+        "invert": false,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyA"]
+    },
+    {
+      "at": 30.34,
+      "label": "chorus 12",
+      "snapshot": {
+        "v": 1,
+        "polytope": "600-cell",
+        "params": {
+          "distance": 0.4,
+          "rotationSpeed": 0.9,
+          "scale": 1.05,
+          "bloomStrength": 0.5,
+          "trails": 0.8,
+          "dust": 0.9,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "none",
+        "slitScan": false,
+        "magnify": false,
+        "invert": false,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyA", "KeyS"]
+    },
+    {
+      "at": 33.1,
+      "label": "chorus 13",
+      "snapshot": {
+        "v": 1,
+        "polytope": "12-hedra-solid",
+        "params": {
+          "distance": 0.42,
+          "rotationSpeed": 0.8,
+          "scale": 1.05,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "repeat",
+        "slitScan": false,
+        "magnify": false,
+        "invert": false,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyS"]
+    },
+    {
+      "at": 35.86,
+      "label": "chorus 14",
+      "snapshot": {
+        "v": 1,
+        "polytope": "24-cell",
+        "params": {
+          "distance": 0.4,
+          "rotationSpeed": 0.95,
+          "scale": 1.05,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 64
+        },
+        "effect": "mirror-right",
+        "slitScan": false,
+        "magnify": false,
+        "invert": false,
+        "faces": false,
+        "particles": true
+      },
+      "keys": ["KeyA"]
+    },
+    {
+      "at": 38.62,
+      "label": "chorus 15",
+      "snapshot": {
+        "v": 1,
+        "polytope": "pentatope",
+        "params": {
+          "distance": 0.3,
+          "rotationSpeed": 1,
+          "scale": 1.05,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "none",
+        "slitScan": false,
+        "magnify": true,
+        "invert": false,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyA", "KeyS"]
+    },
+    {
+      "at": 41.38,
+      "label": "chorus 16",
+      "snapshot": {
+        "v": 1,
+        "polytope": "120-cell",
+        "params": {
+          "distance": 0.44,
+          "rotationSpeed": 0.85,
+          "scale": 1.1,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "none",
+        "slitScan": true,
+        "magnify": false,
+        "invert": false,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyS"]
+    },
+    {
+      "at": 44.14,
+      "label": "chorus 17",
+      "snapshot": {
+        "v": 1,
+        "polytope": "16-cell",
+        "params": {
+          "distance": 0.4,
+          "rotationSpeed": 0.9,
+          "scale": 1.05,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "mirror-left",
+        "slitScan": false,
+        "magnify": false,
+        "invert": true,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyA"]
+    },
+    {
+      "at": 46.9,
+      "label": "chorus 18",
+      "snapshot": {
+        "v": 1,
+        "polytope": "600-cell",
+        "params": {
+          "distance": 0.42,
+          "rotationSpeed": 0.9,
+          "scale": 1.05,
+          "bloomStrength": 0.5,
+          "trails": 0.85,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "repeat",
+        "slitScan": false,
+        "magnify": false,
+        "invert": false,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyA", "KeyS"]
+    },
+    {
+      "at": 49.66,
+      "label": "chorus 19",
+      "snapshot": {
+        "v": 1,
+        "polytope": "hypercube",
+        "params": {
+          "distance": 0.38,
+          "rotationSpeed": 0.95,
+          "scale": 1.05,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 0.75,
+          "motionBlur": 0.8,
+          "fibers": 32
+        },
+        "effect": "none",
+        "slitScan": false,
+        "magnify": true,
+        "invert": false,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyS"]
+    },
+    {
+      "at": 52.41,
+      "label": "chorus 20",
+      "snapshot": {
+        "v": 1,
+        "polytope": "120-cell",
+        "params": {
+          "distance": 0.4,
+          "rotationSpeed": 0.9,
+          "scale": 1.15,
+          "bloomStrength": 0.5,
+          "trails": 0.7,
+          "dust": 1,
+          "motionBlur": 0.8,
+          "fibers": 0
+        },
+        "effect": "mirror-right",
+        "slitScan": false,
+        "magnify": false,
+        "invert": false,
+        "faces": true,
+        "particles": true
+      },
+      "keys": ["KeyA", "KeyS"]
+    },
+    {
+      "at": 56,
+      "label": "outro",
+      "snapshot": {
+        "v": 1,
+        "polytope": "hypercube",
+        "params": {
+          "distance": 0.6,
+          "rotationSpeed": 0.3,
+          "scale": 1,
+          "trails": 0.3,
+          "dust": 0.3,
+          "bloomStrength": 0.35,
+          "motionBlur": 0.4,
+          "fibers": 0
+        },
+        "effect": "none",
+        "slitScan": false,
+        "magnify": false,
+        "invert": false,
+        "faces": true,
+        "particles": false
+      }
+    }
+  ]
+}

@@ -242,6 +242,35 @@ test.describe('app boot', () => {
       await page.goto('/?seed=1');
       await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
       await expect(page.locator('nav.legend .legend-item')).toHaveCount(12);
+      await expect(page.locator('nav.legend .legend-action')).toHaveCount(2);
+    });
+  });
+
+  test.describe('demo mode', () => {
+    test('PLAY DEMO starts the track and applies cues until a key stops it @smoke', async ({
+      page,
+    }) => {
+      const errors: string[] = [];
+      page.on('pageerror', (error) => errors.push(error.message));
+      await page.goto('/?seed=1&polytope=hypercube');
+      const html = page.locator('html');
+      await expect(html).toHaveAttribute('data-ready', 'true');
+      await expect(html).toHaveAttribute('data-demo', 'off');
+      const button = page.locator('#play-demo');
+      await expect(button).toHaveText('Demo');
+      await button.click();
+      await expect(html).toHaveAttribute('data-demo', 'playing');
+      await expect(button).toHaveText('Stop');
+      await expect(html).toHaveAttribute('data-demo-cue', '0');
+      await expect(html).toHaveAttribute('data-polytope', '120-cell');
+      await expect(html).toHaveAttribute('data-audio', 'on');
+      await expect(html).toHaveAttribute('data-demo-cue', /^[1-9]/, { timeout: 8000 });
+      await expect(html).toHaveAttribute('data-demo', 'playing');
+      await page.keyboard.press('Space');
+      await expect(html).toHaveAttribute('data-demo', 'off');
+      await expect(html).toHaveAttribute('data-audio', 'off');
+      await expect(button).toHaveText('Demo');
+      expect(errors).toEqual([]);
     });
   });
 

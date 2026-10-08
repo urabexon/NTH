@@ -3,13 +3,14 @@ import { AUDIO_FFT_SIZE, AUDIO_LOW_BAND_HZ, AUDIO_TEST_TONE_HZ } from '@/core/co
 import { bandEnergy } from './analysis';
 
 export type AudioStatus = 'off' | 'requesting' | 'on' | 'denied' | 'unsupported';
-export type AudioSource = 'microphone' | 'test-tone';
+export type AudioSource = 'microphone' | 'test-tone' | { file: string };
 
 export class AudioInput {
   private context: AudioContext | null = null;
   private analyser: AnalyserNode | null = null;
   private stream: MediaStream | null = null;
   private oscillator: OscillatorNode | null = null;
+  private element: HTMLAudioElement | null = null;
   private bins = new Uint8Array(AUDIO_FFT_SIZE / 2);
   private statusValue: AudioStatus = 'off';
   private readonly listeners = new Set<(status: AudioStatus) => void>();
@@ -37,7 +38,15 @@ export class AudioInput {
     analyser.smoothingTimeConstant = 0.5;
 
     try {
-      if (source === 'test-tone') {
+      if (typeof source === 'object') {
+        const element = new Audio(source.file);
+        element.crossOrigin = 'anonymous';
+        element.preload = 'auto';
+        context.createMediaElementSource(element).connect(analyser);
+        analyser.connect(context.destination);
+        this.element = element;
+        await element.play();
+      } else if (source === 'test-tone') {
         const oscillator = context.createOscillator();
         oscillator.type = 'sine';
         oscillator.frequency.value = AUDIO_TEST_TONE_HZ;
@@ -62,9 +71,19 @@ export class AudioInput {
     this.setStatus('on');
   }
 
+  get playbackTime(): number {
+    return this.element?.currentTime ?? 0;
+  }
+
+  get hasEnded(): boolean {
+    return this.element?.ended ?? false;
+  }
+
   stop(): void {
     this.oscillator?.stop();
     this.oscillator = null;
+    this.element?.pause();
+    this.element = null;
     for (const track of this.stream?.getTracks() ?? []) track.stop();
     this.stream = null;
     void this.context?.close();

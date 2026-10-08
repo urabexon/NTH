@@ -1,0 +1,30 @@
+Demo track
+
+Track: Ricochet
+Artist: Rob Gasser
+Release: Rob Gasser - Ricochet [NCS Release]
+
+Source: https://ncs.io/Ricochet
+Download/Stream: https://ncs.io/Ricochet
+Official Video: https://youtu.be/T4Gq9pkToS8
+
+License: NoCopyrightSounds (NCS) Usage Policy
+License URL: https://ncs.io/usage-policy
+
+Permission:
+Free use approved for student personal projects
+under the NCS student project licensing process.
+
+Usage:
+Included as a demo audio track in NTH,
+a personal, non-commercial audiovisual project.
+
+Modifications:
+Excerpted (0:54-1:54 of the original) with a fade out
+and converted to AAC (M4A, 112 kbps) for demo playback.
+
+Credits:
+Song: Rob Gasser - Ricochet [NCS Release]
+Music provided by NoCopyrightSounds
+Free Download/Stream: http://ncs.io/Ricochet
+Watch: http://youtu.be/T4Gq9pkToS8
