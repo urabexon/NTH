@@ -62,16 +62,16 @@ Voir [docs/perf.md](docs/perf.md) pour les prérequis et les valeurs de référe
 
 ## Pile technique
 
-| Couche          | Choix                                           |
-| --------------- | ----------------------------------------------- |
-| Build           | Vite + TypeScript + pnpm                        |
-| Rendu           | three.js WebGPURenderer (repli WebGL2)          |
-| Shaders         | TSL (Three Shading Language)                    |
-| Calcul GPU      | compute shaders WebGPU                          |
+| Couche          | Choix                                                  |
+| --------------- | ------------------------------------------------------ |
+| Build           | Vite + TypeScript + pnpm                               |
+| Rendu           | three.js WebGPURenderer (repli WebGL2)                 |
+| Shaders         | TSL (Three Shading Language)                           |
+| Calcul GPU      | compute shaders WebGPU                                 |
 | Post-traitement | nœuds PostProcessing de three.js + nœuds personnalisés |
-| Entrées         | clavier, Web MIDI API, Web Audio API            |
-| UI              | Tweakpane                                       |
-| Tests           | Vitest, Playwright                              |
+| Entrées         | clavier, Web MIDI API, Web Audio API                   |
+| UI              | Tweakpane                                              |
+| Tests           | Vitest, Playwright                                     |
 
 ## Déploiement
 
@@ -82,7 +82,7 @@ Pour un hébergement sous un sous-chemin, construisez avec `BASE_PATH=/sous-chem
 ## Crédits
 
 - Morceau de démo : « Ricochet » de Rob Gasser [NCS Release], [NoCopyrightSounds](https://ncs.io/Ricochet).  
-Voir [public/demo/LICENSE.txt](public/demo/LICENSE.txt).
+  Voir [public/demo/LICENSE.txt](public/demo/LICENSE.txt).
 - [three.js](https://threejs.org/), [Tweakpane](https://tweakpane.github.io/docs/).
 
 ## Licence

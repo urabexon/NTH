@@ -6,7 +6,6 @@ A globe is a 3D object. To print it on paper you project it onto a 2D sheet, and
 
 NTH does the same thing one dimension up. The polytopes live on the 3-sphere, the 4D equivalent of a globe. We rotate them in 4D, then shine the lamp from a point on the w axis and trace each point's shadow into ordinary 3D space, where a normal camera looks at it. When a part of the shape swings close to the lamp, its shadow flies outward and the shape seems to turn inside out. That is the whole trick; everything else is about making it look good and run fast.
 
-
 ![flow](/docs/flow.jpeg)
 
 ## 1. Where the shapes come from

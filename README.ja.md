@@ -81,7 +81,7 @@ CI では lint、型チェック、ユニットテスト、ビルドに加え、
 ## Credits
 
 - Demo track: "Ricochet" by Rob Gasser [NCS Release], [NoCopyrightSounds](https://ncs.io/Ricochet).  
-See [public/demo/LICENSE.txt](public/demo/LICENSE.txt).
+  See [public/demo/LICENSE.txt](public/demo/LICENSE.txt).
 - [three.js](https://threejs.org/), [Tweakpane](https://tweakpane.github.io/docs/).
 
 ## License
